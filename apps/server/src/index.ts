@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
+import generateImageRoute from "./routes/generate-image";
 import { ChatRequestSchema } from "./validation/ai";
 
 const app = new Hono();
@@ -37,6 +38,8 @@ app.get("/health", async (c) => {
 });
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+
+app.route("/api", generateImageRoute);
 
 app.post("/ai", async (c) => {
 	const body = await c.req.json();
