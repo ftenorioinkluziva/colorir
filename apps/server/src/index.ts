@@ -1,4 +1,5 @@
 import { auth } from "@colorir/auth";
+import { createDb } from "@colorir/db";
 import { env } from "@colorir/env/server";
 import { convertToModelMessages, streamText } from "ai";
 import { Hono } from "hono";
@@ -19,6 +20,16 @@ app.use(
 		credentials: true,
 	}),
 );
+
+app.get("/health", async (c) => {
+	try {
+		const db = createDb();
+		await db.execute("SELECT 1");
+		return c.json({ status: "ok", db: "connected" });
+	} catch {
+		return c.json({ status: "error", db: "disconnected" }, 503);
+	}
+});
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 

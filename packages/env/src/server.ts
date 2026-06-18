@@ -8,6 +8,15 @@ export const env = createEnv({
 		BETTER_AUTH_SECRET: z.string().min(32),
 		BETTER_AUTH_URL: z.url(),
 		CORS_ORIGIN: z.url(),
+		STORAGE_ENDPOINT: z.string().url().optional(),
+		STORAGE_ACCESS_KEY: z.string().optional(),
+		STORAGE_SECRET_KEY: z.string().optional(),
+		STORAGE_BUCKET: z.string().optional(),
+		STORAGE_REGION: z.string().optional(),
+		STORAGE_USE_SSL: z
+			.string()
+			.transform((v) => v === "true")
+			.optional(),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
 			.default("development"),
