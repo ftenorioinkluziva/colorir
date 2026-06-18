@@ -67,6 +67,10 @@ export default function PdfPreview({ images, open, onClose }: PdfPreviewProps) {
 				credentials: "include",
 			});
 
+			if (response.status === 413) {
+				throw new Error("PDF excede o limite de tamanho (20MB)");
+			}
+
 			if (!response.ok) {
 				throw new Error("Erro ao gerar PDF");
 			}
