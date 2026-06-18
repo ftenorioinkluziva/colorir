@@ -8,15 +8,15 @@ export const env = createEnv({
 		BETTER_AUTH_SECRET: z.string().min(32),
 		BETTER_AUTH_URL: z.url(),
 		CORS_ORIGIN: z.url(),
-		STORAGE_ENDPOINT: z.string().url().optional(),
-		STORAGE_ACCESS_KEY: z.string().optional(),
-		STORAGE_SECRET_KEY: z.string().optional(),
-		STORAGE_BUCKET: z.string().optional(),
-		STORAGE_REGION: z.string().optional(),
+		STORAGE_ENDPOINT: z.string().url().default("http://localhost:9000"),
+		STORAGE_ACCESS_KEY: z.string().default("minio"),
+		STORAGE_SECRET_KEY: z.string().default("minio123"),
+		STORAGE_BUCKET: z.string().default("colorir-images"),
+		STORAGE_REGION: z.string().default("us-east-1"),
 		STORAGE_USE_SSL: z
 			.string()
-			.transform((v) => v === "true")
-			.optional(),
+			.default("false")
+			.transform((v) => v === "true"),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
 			.default("development"),

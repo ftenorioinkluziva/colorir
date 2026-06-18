@@ -1,0 +1,24 @@
+{
+	"name": "@colorir/storage",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"scripts": {
+		"test": "vitest",
+		"test:run": "vitest run",
+		"check-types": "tsc -b"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "^3.800.0",
+		"@aws-sdk/s3-request-presigner": "^3.800.0",
+		"@colorir/env": "workspace:*"
+	},
+	"devDependencies": {
+		"@colorir/config": "workspace:*",
+		"@types/bun": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:",
+		"@vitest/coverage-v8": "catalog:"
+	}
+}

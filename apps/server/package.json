@@ -17,6 +17,7 @@
 		"@colorir/auth": "workspace:*",
 		"@colorir/db": "workspace:*",
 		"@colorir/env": "workspace:*",
+		"@colorir/storage": "workspace:*",
 		"ai": "catalog:",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
