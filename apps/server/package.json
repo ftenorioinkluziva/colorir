@@ -19,6 +19,7 @@
 		"@colorir/env": "workspace:*",
 		"@colorir/storage": "workspace:*",
 		"ai": "catalog:",
+		"drizzle-orm": "^0.45.1",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
 		"hono": "^4.8.2",
