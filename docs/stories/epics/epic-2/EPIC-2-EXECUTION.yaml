@@ -1,0 +1,203 @@
+execution:
+  epicId: EPIC-2
+  epicIndex: 2
+  title: AI Studio + Galeria
+  storyBasePath: docs/stories/backlog/epic-2
+  template: epic-orchestration
+  mode: interactive
+
+  stories:
+    2.1:
+      id: 2.1
+      title: Integração AI Gateway (Spike Técnico)
+      file: 2.1-integracao-ai-gateway-spike-tecnico.md
+      executor: "@analyst"
+      quality_gate: "@pm"
+      quality_gate_tools:
+        - research_validation
+        - prompt_quality_review
+        - spike_result_review
+      branch: codex/epic-2-2.1-integracao-ai-gateway-spike-tecnico
+      complexity: medium
+      key_files:
+        - docs/stories/backlog/epic-2/2.1-integracao-ai-gateway-spike-tecnico.md
+
+    2.2:
+      id: 2.2
+      title: Studio: Formulário de Geração
+      file: 2.2-studio-formulario-de-geracao.md
+      executor: "@ux-design-expert"
+      quality_gate: "@dev"
+      quality_gate_tools:
+        - ui_review
+        - accessibility_review
+        - interaction_flow_check
+      branch: codex/epic-2-2.2-studio-formulario-de-geracao
+      complexity: high
+      key_files:
+        - apps/web/src/*
+        - packages/ui/src/*
+        - docs/stories/backlog/epic-2/2.2-studio-formulario-de-geracao.md
+
+    2.3:
+      id: 2.3
+      title: API de Geração (Hono)
+      file: 2.3-api-de-geracao-hono.md
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - api_contract_review
+        - validation_review
+        - storage_integration_check
+      branch: codex/epic-2-2.3-api-de-geracao-hono
+      complexity: high
+      key_files:
+        - apps/server/src/*
+        - packages/db/src/*
+        - packages/env/src/*
+        - docs/stories/backlog/epic-2/2.3-api-de-geracao-hono.md
+
+    2.4:
+      id: 2.4
+      title: Galeria de Imagens
+      file: 2.4-galeria-de-imagens.md
+      executor: "@dev"
+      quality_gate: "@ux-design-expert"
+      quality_gate_tools:
+        - gallery_ui_review
+        - empty_state_review
+        - loading_state_check
+      branch: codex/epic-2-2.4-galeria-de-imagens
+      complexity: medium
+      key_files:
+        - apps/web/src/*
+        - packages/ui/src/*
+        - docs/stories/backlog/epic-2/2.4-galeria-de-imagens.md
+
+    2.5:
+      id: 2.5
+      title: Seleção Múltipla e Ações em Lote
+      file: 2.5-selecao-multipla-acoes-em-lote.md
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - selection_state_review
+        - batch_action_review
+        - confirmation_flow_check
+      branch: codex/epic-2-2.5-selecao-multipla-acoes-em-lote
+      complexity: medium
+      key_files:
+        - apps/web/src/*
+        - docs/stories/backlog/epic-2/2.5-selecao-multipla-acoes-em-lote.md
+
+  waves:
+    - number: 1
+      name: "Spike and de-risk"
+      parallel: false
+      dependencies: []
+      stories:
+        - 2.1
+      gate_agent: "@pm"
+      gate:
+        focus:
+          - AI Gateway model selection
+          - Prompt quality for line-art
+          - Recommendation for implementation stories
+      merge:
+        order:
+          - codex/epic-2-2.1-integracao-ai-gateway-spike-tecnico
+        conflict_risk: low
+        notes: "Research spike; no shared runtime changes expected."
+      tag: wave-1-complete
+
+    - number: 2
+      name: "Studio and API parallelization"
+      parallel: true
+      dependencies:
+        - 1
+      stories:
+        - 2.2
+        - 2.3
+      gate_agent: "@architect"
+      gate:
+        focus:
+          - UI/API contract alignment
+          - Auth and storage compatibility
+          - Prompt and validation consistency
+      merge:
+        order:
+          - codex/epic-2-2.3-api-de-geracao-hono
+          - codex/epic-2-2.2-studio-formulario-de-geracao
+        conflict_risk: medium
+        notes: "API first, then consume from Studio."
+      tag: wave-2-complete
+
+    - number: 3
+      name: "Gallery delivery"
+      parallel: false
+      dependencies:
+        - 2
+      stories:
+        - 2.4
+      gate_agent: "@ux-design-expert"
+      gate:
+        focus:
+          - Gallery rendering
+          - Empty/loading states
+          - Consistency with the Studio flow
+      merge:
+        order:
+          - codex/epic-2-2.4-galeria-de-imagens
+        conflict_risk: low
+        notes: "Gallery depends on generated images and API output."
+      tag: wave-3-complete
+
+    - number: 4
+      name: "Batch actions"
+      parallel: false
+      dependencies:
+        - 3
+      stories:
+        - 2.5
+      gate_agent: "@qa"
+      gate:
+        focus:
+          - Selection state correctness
+          - Batch action safety
+          - Delete confirmation behavior
+      merge:
+        order:
+          - codex/epic-2-2.5-selecao-multipla-acoes-em-lote
+        conflict_risk: low
+        notes: "Final gallery interaction layer before PDF export."
+      tag: wave-4-complete
+
+  final_gate:
+    agent: "@architect"
+    focus:
+      - AI generation path is validated
+      - Studio, API, gallery, and batch actions integrate cleanly
+      - Epic 3 can begin with selection-ready data flows
+    tag: epic-2-complete
+
+  bug_verification:
+    - bug: 1
+      description: "AI Gateway prompt quality or model selection issues"
+      fixed_by: "2.1"
+      verify: "Spike results document a stable model and prompt set"
+    - bug: 2
+      description: "Studio prompt form validation or loading state failures"
+      fixed_by: "2.2"
+      verify: "Form supports styles, prompt entry, and error states"
+    - bug: 3
+      description: "Generation API contract or storage integration failures"
+      fixed_by: "2.3"
+      verify: "Endpoint returns and persists generated images reliably"
+    - bug: 4
+      description: "Gallery rendering or selection regressions"
+      fixed_by: "2.4"
+      verify: "Gallery shows images and basic states correctly"
+    - bug: 5
+      description: "Batch action safety or deletion mistakes"
+      fixed_by: "2.5"
+      verify: "Multi-select and confirmation flow work safely"

@@ -8,6 +8,7 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import generateImageRoute from "./routes/generate-image";
+import generatePdfRoute from "./routes/generate-pdf";
 import imagesRoute from "./routes/images";
 import { ChatRequestSchema } from "./validation/ai";
 
@@ -42,6 +43,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.route("/api", generateImageRoute);
 app.route("/api", imagesRoute);
+app.route("/api", generatePdfRoute);
 
 app.post("/ai", async (c) => {
 	const body = await c.req.json();

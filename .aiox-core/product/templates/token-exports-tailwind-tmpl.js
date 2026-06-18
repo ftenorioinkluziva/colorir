@@ -42,7 +42,7 @@ module.exports = {
 ("{{COLOR_NAME}}");
 : '{{COLOR_VALUE}}',
 {
-	/#;AAAACCCCCEEEHHIILLMMNOOOOPRRRRSTY____}}("{{COLOR_NAME}}");
+	/""#();;AAAAACCCCCCEEEEHHIILLLMMMNNOOOOOOPRRRRRSTY_____{{}}}};
 	: '{{COLOR_VALUE}}',/EACH_COLOR_SEMANTIC
 }
 }#EACH_COLOR_NEUTRAL
@@ -169,7 +169,7 @@ module.exports = {
       gridTemplateRows: #EACH_GRID_ROWS
         '{{ROWS_NAME}}': '{{ROWS_VALUE}}',
 {
-	/,;ACDEGHIORRSW__}};
+	/,;;ACDEGHIORRSW__}};
 
 	gap: #EACH_GAP
 	("{{GAP_NAME}}");
@@ -197,7 +197,7 @@ addUtilities(newUtilities, ["responsive", "hover"])
 }
 ),
 {
-	/#;AFFFGGGHIIIILLMNNOOPPPPRRSTUUYY____};
+	/#;;AFFFGGGHIIIILLMNNOOPPPPRRSTUUYY____};
 	// Tailwind Typography plugin
 	require("@tailwindcss/typography"), { {/IF_TYPOGRAPHY_PLUGIN };
 	#IF_ASPECT_RATIO_PLUGIN
@@ -213,7 +213,7 @@ addUtilities(newUtilities, ["responsive", "hover"])
   safelist: [#EACH_SAFELIST_PATTERN
       pattern: /
 	PATTERN_REGEX
-	/,;;
+	/,
 	#IF_VARIANTS
 	variants: [{{VARIANTS}}],
       {{/IF_VARIANTS}

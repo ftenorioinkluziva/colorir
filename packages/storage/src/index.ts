@@ -76,6 +76,23 @@ export async function getImageUrl(imageId: string): Promise<string> {
 	return getSignedUrl(c, command, { expiresIn: 3600 });
 }
 
+export async function downloadImage(key: string): Promise<Buffer> {
+	const c = getClient();
+	const bucket = env.STORAGE_BUCKET;
+
+	const command = new GetObjectCommand({
+		Bucket: bucket,
+		Key: key,
+	});
+
+	const response = await c.send(command);
+	const body = await response.Body?.transformToByteArray();
+	if (!body) {
+		throw new Error(`Failed to download image: ${key}`);
+	}
+	return Buffer.from(body);
+}
+
 function isNotFound(err: unknown): boolean {
 	if (err instanceof Error) {
 		const name = (err as any).name;

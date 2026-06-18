@@ -1,0 +1,21 @@
+handoff:
+  version: "1.0"
+  timestamp: "2026-06-17T23:50:00Z"
+  from_agent: "analyst"
+  to_agent: "pm"
+  story_context:
+    story_id: ""
+    story_path: ""
+    story_status: "Completed"
+    current_task: "Project Brief creation"
+    branch: "master"
+  decisions:
+    - "PDF library: pdf-lib (server-side, Hono-compatible)"
+    - "IA: AI Gateway (ai, provider/model)"
+    - "Storage: MinIO (MVP) -> Cloudflare R2 (futuro)"
+    - "Auth: better-auth + Google OAuth"
+    - "Infra: Docker Compose + Arcane + Hetzner VPS"
+  files_modified:
+    - "docs/brief.md"
+  blockers: []
+  next_action: "Run *create-prd using the completed Project Brief at docs/brief.md. Product: Colorir — coloring book page generator with AI line-art + PDF export."

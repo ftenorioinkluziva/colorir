@@ -1,0 +1,141 @@
+execution:
+  epicId: EPIC-3
+  epicIndex: 3
+  title: Motor de Exportação PDF
+  storyBasePath: docs/stories/backlog/epic-3
+  template: epic-orchestration
+  mode: interactive
+
+  stories:
+    3.1:
+      id: 3.1
+      title: Serviço de Geração de PDF (Hono + pdf-lib)
+      file: 3.1-servico-geracao-pdf-hono-pdf-lib.md
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - pdf_generation_review
+        - storage_integration_check
+        - page_layout_validation
+      branch: codex/epic-3-3.1-servico-geracao-pdf-hono-pdf-lib
+      complexity: high
+      key_files:
+        - apps/server/src/*
+        - packages/db/src/*
+        - docs/stories/backlog/epic-3/3.1-servico-geracao-pdf-hono-pdf-lib.md
+
+    3.2:
+      id: 3.2
+      title: Preview do PDF
+      file: 3.2-preview-do-pdf.md
+      executor: "@ux-design-expert"
+      quality_gate: "@dev"
+      quality_gate_tools:
+        - preview_flow_review
+        - reorder_interaction_check
+        - empty_state_review
+      branch: codex/epic-3-3.2-preview-do-pdf
+      complexity: medium
+      key_files:
+        - apps/web/src/*
+        - packages/ui/src/*
+        - docs/stories/backlog/epic-3/3.2-preview-do-pdf.md
+
+    3.3:
+      id: 3.3
+      title: Download do PDF
+      file: 3.3-download-do-pdf.md
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - download_flow_review
+        - signed_url_validation
+        - size_limit_check
+      branch: codex/epic-3-3.3-download-do-pdf
+      complexity: low
+      key_files:
+        - apps/server/src/*
+        - apps/web/src/*
+        - docs/stories/backlog/epic-3/3.3-download-do-pdf.md
+
+  waves:
+    - number: 1
+      name: "PDF generation core"
+      parallel: false
+      dependencies: []
+      stories:
+        - 3.1
+      gate_agent: "@architect"
+      gate:
+        focus:
+          - Server-side PDF generation correctness
+          - Storage and metadata integrity
+          - A4 layout and pagination
+      merge:
+        order:
+          - codex/epic-3-3.1-servico-geracao-pdf-hono-pdf-lib
+        conflict_risk: medium
+        notes: "Core PDF engine before any preview/download work."
+      tag: wave-1-complete
+
+    - number: 2
+      name: "Preview layer"
+      parallel: false
+      dependencies:
+        - 1
+      stories:
+        - 3.2
+      gate_agent: "@dev"
+      gate:
+        focus:
+          - Page thumbnail ordering
+          - Reorder interaction
+          - Empty state / confirmation UX
+      merge:
+        order:
+          - codex/epic-3-3.2-preview-do-pdf
+        conflict_risk: low
+        notes: "Depends on the generated PDF selection flow."
+      tag: wave-2-complete
+
+    - number: 3
+      name: "Download completion"
+      parallel: false
+      dependencies:
+        - 2
+      stories:
+        - 3.3
+      gate_agent: "@qa"
+      gate:
+        focus:
+          - Signed URL download safety
+          - Filename correctness
+          - Progress and size-limit handling
+      merge:
+        order:
+          - codex/epic-3-3.3-download-do-pdf
+        conflict_risk: low
+        notes: "Final export step; closes the MVP loop."
+      tag: wave-3-complete
+
+  final_gate:
+    agent: "@architect"
+    focus:
+      - PDF generation, preview, and download are end-to-end complete
+      - Export flow is production-safe and ready for release
+      - No unresolved dependency remains for the MVP print path
+    tag: epic-3-complete
+
+  bug_verification:
+    - bug: 1
+      description: "PDF generation layout or pagination defects"
+      fixed_by: "3.1"
+      verify: "A4 PDF renders one image per page correctly"
+    - bug: 2
+      description: "Preview order or reorder interaction issues"
+      fixed_by: "3.2"
+      verify: "Preview matches selected page order and reordering works"
+    - bug: 3
+      description: "Download URL or filename issues"
+      fixed_by: "3.3"
+      verify: "Download uses signed URL and the required filename pattern"

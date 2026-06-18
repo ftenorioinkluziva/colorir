@@ -1,0 +1,49 @@
+epic_state:
+  epicId: "EPIC-3"
+  execution_plan: docs/stories/epics/epic-3/EPIC-3-EXECUTION.yaml
+  mode: interactive
+  started_at: "2026-06-18T14:54:16Z"
+  updated_at: "2026-06-18T14:54:16Z"
+  status: active
+
+  current_wave: 1
+  total_waves: 3
+
+  waves:
+    1:
+      name: "PDF generation core"
+      status: in_progress
+      tag: wave-1-complete
+      stories:
+        "3.1":
+          status: in_progress
+          branch: codex/epic-3-3.1-servico-geracao-pdf-hono-pdf-lib
+          started_at: "2026-06-18T14:54:30Z"
+          completed_at: null
+          executor: "@dev"
+          quality_gate: "@architect"
+    2:
+      name: "Preview layer"
+      status: pending
+      stories:
+        "3.2":
+          status: pending
+          branch: codex/epic-3-3.2-preview-do-pdf
+          started_at: null
+          completed_at: null
+          executor: "@ux-design-expert"
+          quality_gate: "@dev"
+    3:
+      name: "Download completion"
+      status: pending
+      stories:
+        "3.3":
+          status: pending
+          branch: codex/epic-3-3.3-download-do-pdf
+          started_at: null
+          completed_at: null
+          executor: "@dev"
+          quality_gate: "@qa"
+
+  gate_verdicts: {}
+  bug_verification: {}
