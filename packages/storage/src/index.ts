@@ -50,7 +50,7 @@ export async function uploadImage(
 
 	const ext = filename.split(".").pop()?.toLowerCase();
 	const contentType =
-		ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+		ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : ext === "pdf" ? "application/pdf" : "image/jpeg";
 
 	await c.send(
 		new PutObjectCommand({
