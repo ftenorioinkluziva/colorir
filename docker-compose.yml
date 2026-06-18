@@ -34,7 +34,7 @@ services:
       STORAGE_ENDPOINT: http://minio:9000
       STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:-minio}
       STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minio123}
-      STORAGE_BUCKET: colorir
+      STORAGE_BUCKET: colorir-images
       STORAGE_REGION: us-east-1
       STORAGE_USE_SSL: "false"
     healthcheck:
@@ -99,7 +99,9 @@ services:
       mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-minio} ${MINIO_ROOT_PASSWORD:-minio123} &&
       mc mb local/colorir --ignore-existing &&
       mc anonymous set public local/colorir &&
-      echo 'Bucket colorir ready'
+      mc mb local/colorir-images --ignore-existing &&
+      mc anonymous set public local/colorir-images &&
+      echo 'Buckets colorir and colorir-images ready'
       "
 
 volumes:

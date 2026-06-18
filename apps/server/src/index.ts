@@ -1,6 +1,7 @@
 import { auth } from "@colorir/auth";
 import { createDb } from "@colorir/db";
 import { env } from "@colorir/env/server";
+import { ensureBucket } from "@colorir/storage";
 import { convertToModelMessages, streamText } from "ai";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -9,6 +10,10 @@ import { logger } from "hono/logger";
 import { ChatRequestSchema } from "./validation/ai";
 
 const app = new Hono();
+
+ensureBucket().catch((err: unknown) => {
+	console.error("Failed to ensure storage bucket:", err);
+});
 
 app.use(logger());
 app.use(
