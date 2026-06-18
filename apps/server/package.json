@@ -19,10 +19,11 @@
 		"@colorir/env": "workspace:*",
 		"@colorir/storage": "workspace:*",
 		"ai": "catalog:",
-		"drizzle-orm": "^0.45.1",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
+		"drizzle-orm": "^0.45.1",
 		"hono": "^4.8.2",
+		"pdf-lib": "^1.17.1",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

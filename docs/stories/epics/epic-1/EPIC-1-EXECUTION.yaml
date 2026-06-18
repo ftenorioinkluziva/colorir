@@ -1,0 +1,165 @@
+execution:
+  epicId: EPIC-1
+  epicIndex: 1
+  title: Foundation & Authentication
+  storyBasePath: docs/stories/backlog/epic-1
+  template: epic-orchestration
+  mode: interactive
+
+  stories:
+    1.1:
+      id: 1.1
+      title: Setup do Monorepo e Infra Docker
+      file: 1.1-setup-monorepo-infra-docker.md
+      executor: "@devops"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - architecture_review
+        - docker_compose_validation
+        - deployment_health_check
+      branch: codex/epic-1-1.1-setup-monorepo-infra-docker
+      complexity: high
+      key_files:
+        - docker-compose.yml
+        - apps/web/Dockerfile
+        - apps/server/Dockerfile
+        - docs/stories/backlog/epic-1/1.1-setup-monorepo-infra-docker.md
+
+    1.2:
+      id: 1.2
+      title: Setup Drizzle ORM + Schema Inicial
+      file: 1.2-setup-drizzle-orm-schema-inicial.md
+      executor: "@data-engineer"
+      quality_gate: "@dev"
+      quality_gate_tools:
+        - schema_validation
+        - migration_review
+        - sql_safety_check
+      branch: codex/epic-1-1.2-setup-drizzle-orm-schema-inicial
+      complexity: medium
+      key_files:
+        - packages/db/drizzle.config.ts
+        - packages/db/src/schema/*
+        - docs/stories/backlog/epic-1/1.2-setup-drizzle-orm-schema-inicial.md
+
+    1.3:
+      id: 1.3
+      title: Autenticação Google OAuth (better-auth)
+      file: 1.3-autenticacao-google-oauth-better-auth.md
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - auth_flow_review
+        - session_validation
+        - regression_check
+      branch: codex/epic-1-1.3-autenticacao-google-oauth-better-auth
+      complexity: high
+      key_files:
+        - apps/server/src/*
+        - packages/auth/*
+        - docs/stories/backlog/epic-1/1.3-autenticacao-google-oauth-better-auth.md
+
+    1.4:
+      id: 1.4
+      title: Setup MinIO + Upload de Imagens
+      file: 1.4-setup-minio-upload-imagens.md
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - storage_validation
+        - upload_flow_check
+        - env_config_review
+      branch: codex/epic-1-1.4-setup-minio-upload-imagens
+      complexity: medium
+      key_files:
+        - apps/server/src/*
+        - packages/db/src/*
+        - docs/stories/backlog/epic-1/1.4-setup-minio-upload-imagens.md
+
+  waves:
+    - number: 1
+      name: "Foundation bootstrap"
+      parallel: false
+      dependencies: []
+      stories:
+        - 1.1
+      gate_agent: "@architect"
+      gate:
+        focus:
+          - Infrastructure layout
+          - Docker and deploy readiness
+          - Base repository compatibility
+      merge:
+        order:
+          - codex/epic-1-1.1-setup-monorepo-infra-docker
+        conflict_risk: low
+        notes: "Foundation story; no parallel merge pressure."
+      tag: wave-1-complete
+
+    - number: 2
+      name: "Schema and storage parallelization"
+      parallel: true
+      dependencies:
+        - 1
+      stories:
+        - 1.2
+        - 1.4
+      gate_agent: "@architect"
+      gate:
+        focus:
+          - Database schema correctness
+          - Storage integration readiness
+          - Compatibility with foundation setup
+      merge:
+        order:
+          - codex/epic-1-1.2-setup-drizzle-orm-schema-inicial
+          - codex/epic-1-1.4-setup-minio-upload-imagens
+        conflict_risk: medium
+        notes: "Separate data and storage concerns; merge schema first."
+      tag: wave-2-complete
+
+    - number: 3
+      name: "Authentication completion"
+      parallel: false
+      dependencies:
+        - 2
+      stories:
+        - 1.3
+      gate_agent: "@architect"
+      gate:
+        focus:
+          - Google OAuth login flow
+          - Session persistence
+          - Redirect correctness
+      merge:
+        order:
+          - codex/epic-1-1.3-autenticacao-google-oauth-better-auth
+        conflict_risk: medium
+        notes: "Auth depends on schema and platform foundations."
+      tag: wave-3-complete
+
+  final_gate:
+    agent: "@architect"
+    focus:
+      - Foundation stories are complete and integrated
+      - Database, auth, and storage all cooperate cleanly
+      - Epic 2 can begin without missing prerequisites
+    tag: epic-1-complete
+
+  bug_verification:
+    - bug: 1
+      description: "Docker and workspace bootstrap regressions"
+      fixed_by: "1.1"
+      verify: "Monorepo and infra start cleanly"
+    - bug: 2
+      description: "Database schema and migration inconsistencies"
+      fixed_by: "1.2"
+      verify: "Schema applies and migrations run safely"
+    - bug: 3
+      description: "Auth session or redirect issues"
+      fixed_by: "1.3"
+      verify: "Google login lands in Studio and session persists"
+    - bug: 4
+      description: "Storage upload or URL generation failures"
+      fixed_by: "1.4"
+      verify: "MinIO bucket creation and upload helpers work"

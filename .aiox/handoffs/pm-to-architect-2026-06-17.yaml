@@ -1,0 +1,27 @@
+handoff:
+  version: "1.0"
+  timestamp: "2026-06-17T23:55:00Z"
+  from_agent: "pm"
+  to_agent: "architect"
+  story_context:
+    story_id: ""
+    story_path: ""
+    story_status: "Completed"
+    current_task: "PRD creation"
+    branch: "master"
+  decisions:
+    - "Arquitetura: Monorepo (apps/web, apps/api, packages/*)"
+    - "Frontend: React + TanStack Router + TailwindCSS + shadcn/ui"
+    - "Backend: Hono (API routes, monolith)"
+    - "DB: PostgreSQL self-hosted (Docker) + Drizzle ORM"
+    - "IA: AI Gateway (ai, provider/model)"
+    - "PDF: pdf-lib (server-side)"
+    - "Auth: better-auth + Google OAuth"
+    - "Storage: MinIO (MVP) → Cloudflare R2 (futuro)"
+    - "Infra: Docker Compose → Arcane → Hetzner VPS"
+    - "IA Key: híbrido (sistema + limite diário, própria key pós-MVP)"
+  files_modified:
+    - "docs/brief.md"
+    - "docs/prd.md"
+  blockers: []
+  next_action: "Run architectural design based on PRD at docs/prd.md. Focus: Docker Compose structure (PostgreSQL + MinIO + api + web), monorepo packages, Drizzle schema design, Hono API routes, better-auth integration, AI Gateway client service, MinIO storage service, pdf-lib service, and frontend TanStack Router setup."

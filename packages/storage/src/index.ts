@@ -50,7 +50,7 @@ export async function uploadImage(
 
 	const ext = filename.split(".").pop()?.toLowerCase();
 	const contentType =
-		ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+		ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : ext === "pdf" ? "application/pdf" : "image/jpeg";
 
 	await c.send(
 		new PutObjectCommand({
@@ -74,6 +74,23 @@ export async function getImageUrl(imageId: string): Promise<string> {
 	});
 
 	return getSignedUrl(c, command, { expiresIn: 3600 });
+}
+
+export async function downloadImage(key: string): Promise<Buffer> {
+	const c = getClient();
+	const bucket = env.STORAGE_BUCKET;
+
+	const command = new GetObjectCommand({
+		Bucket: bucket,
+		Key: key,
+	});
+
+	const response = await c.send(command);
+	const body = await response.Body?.transformToByteArray();
+	if (!body) {
+		throw new Error(`Failed to download image: ${key}`);
+	}
+	return Buffer.from(body);
 }
 
 function isNotFound(err: unknown): boolean {

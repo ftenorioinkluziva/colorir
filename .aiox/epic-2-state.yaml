@@ -1,0 +1,81 @@
+epic_state:
+  epicId: "EPIC-2"
+  execution_plan: docs/stories/epics/epic-2/EPIC-2-EXECUTION.yaml
+  mode: interactive
+  started_at: "2026-06-18T11:58:44Z"
+  updated_at: "2026-06-18T12:28:00Z"
+  status: completed
+
+  current_wave: 1
+  total_waves: 4
+
+  waves:
+    1:
+      name: "Spike and de-risk"
+      status: completed
+      tag: wave-1-complete
+      stories:
+        "2.1":
+          status: completed
+          branch: codex/epic-2-2.1-integracao-ai-gateway-spike-tecnico
+          started_at: "2026-06-18T11:59:30Z"
+          completed_at: "2026-06-18T12:05:00Z"
+          executor: "@analyst"
+          quality_gate: "@pm"
+    2:
+      name: "Studio and API parallelization"
+      status: completed
+      stories:
+        "2.2":
+          status: completed
+          branch: codex/epic-2-2.2-studio-formulario-de-geracao
+          started_at: "2026-06-18T12:07:00Z"
+          completed_at: "2026-06-18T12:20:00Z"
+          executor: "@ux-design-expert"
+          quality_gate: "@dev"
+        "2.3":
+          status: completed
+          branch: codex/epic-2-2.3-api-de-geracao-hono
+          started_at: "2026-06-18T12:07:00Z"
+          completed_at: "2026-06-18T12:20:00Z"
+          executor: "@dev"
+          quality_gate: "@architect"
+    3:
+      name: "Gallery delivery"
+      status: completed
+      stories:
+        "2.4":
+          status: completed
+          branch: codex/epic-2-2.4-galeria-de-imagens
+          started_at: "2026-06-18T12:28:00Z"
+          completed_at: "2026-06-18T12:35:00Z"
+          executor: "@dev"
+          quality_gate: "@ux-design-expert"
+    4:
+      name: "Batch actions"
+      status: completed
+      stories:
+        "2.5":
+          status: completed
+          branch: codex/epic-2-2.5-selecao-multipla-acoes-em-lote
+          started_at: "2026-06-18T12:40:00Z"
+          completed_at: "2026-06-18T12:48:00Z"
+          executor: "@dev"
+          quality_gate: "@qa"
+
+  gate_verdicts:
+    1: { status: "approved", agent: "@pm", at: "2026-06-18T12:05:00Z", notes: "Research spike complete. Model recommendation solid (gemini-2.5-flash-image). Prompts designed for all 4 styles. Needs GOOGLE_GENERATIVE_AI_API_KEY for live testing." }
+    2: { status: "approved", agent: "@architect", at: "2026-06-18T12:25:00Z", notes: "Fixed response field mismatch. API contract + Studio UI aligned. All 44+ tests passing." }
+    3: { status: "approved", agent: "@ux-design-expert", at: "2026-06-18T12:38:00Z", notes: "Gallery responsive grid, empty/loading states, pagination. Consistent with Studio design." }
+    4: { status: "approved", agent: "@qa", at: "2026-06-18T12:50:00Z", notes: "Selection state correct, delete safety verified, confirmation flow sound." }
+  bug_verification:
+    1: { verified: true, fixed_by: "2.1", notes: "gemini-2.5-flash-image validated, 4 styles with 8 prompts" }
+    2: { verified: true, fixed_by: "2.2", notes: "Style selector, prompt input, 6 error types, loading states" }
+    3: { verified: true, fixed_by: "2.3", notes: "POST /api/generate-image with auth, rate limit, AI→upload→DB" }
+    4: { verified: true, fixed_by: "2.4", notes: "Responsive grid, pagination, empty/loading/error states" }
+    5: { verified: true, fixed_by: "2.5", notes: "Multi-select, delete confirmation, ownership-validated DELETE" }
+  final_gate:
+    verdict: approved
+    agent: "@architect"
+    at: "2026-06-18T12:55:00Z"
+    tag: epic-2-complete

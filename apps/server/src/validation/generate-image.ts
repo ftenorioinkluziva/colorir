@@ -99,7 +99,8 @@ async function main() {
 				});
 
 				const images = result.files?.filter(
-					(f): f is NonNullable<typeof f> => !!f.mediaType?.startsWith("image/"),
+					(f): f is NonNullable<typeof f> =>
+						!!f.mediaType?.startsWith("image/"),
 				);
 
 				if (images && images.length > 0) {

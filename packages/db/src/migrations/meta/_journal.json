@@ -15,6 +15,13 @@
 			"when": 1781791839540,
 			"tag": "0001_lucky_frog_thor",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1781805769327,
+			"tag": "0002_optimal_jocasta",
+			"breakpoints": true
 		}
 	]
 }
