@@ -2,9 +2,10 @@ import { auth } from "@colorir/auth";
 import { createDb } from "@colorir/db";
 import { userImages } from "@colorir/db/schema/user-images";
 import { getImageUrl } from "@colorir/storage";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
 
 const DEFAULT_PAGE_SIZE = 12;
 const MAX_PAGE_SIZE = 50;
@@ -62,6 +63,48 @@ app.get("/images", async (c) => {
 	);
 
 	return c.json({ images, total, page, pageSize });
+});
+
+const DeleteSchema = z.object({
+	ids: z.array(z.string()).min(1, "At least one id is required"),
+});
+
+app.delete("/images", async (c) => {
+	const session = await auth.api.getSession({ headers: c.req.raw.headers });
+	if (!session?.user?.id) {
+		throw new HTTPException(401, { message: "Unauthorized" });
+	}
+	const userId = session.user.id;
+
+	const body = await c.req.json();
+	const parsed = DeleteSchema.safeParse(body);
+	if (!parsed.success) {
+		throw Object.assign(new Error("Validation error"), {
+			cause: parsed.error,
+		});
+	}
+
+	const db = createDb();
+
+	const images = await db
+		.select({ id: userImages.id })
+		.from(userImages)
+		.where(
+			and(
+				eq(userImages.userId, userId),
+				inArray(userImages.id, parsed.data.ids),
+			),
+		);
+
+	if (images.length === 0) {
+		return c.json({ deleted: 0 });
+	}
+
+	const validIds = images.map((img) => img.id);
+
+	await db.delete(userImages).where(inArray(userImages.id, validIds));
+
+	return c.json({ deleted: validIds.length });
 });
 
 export default app;
