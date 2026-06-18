@@ -1,0 +1,18 @@
+status:
+  branch: master
+  modifiedFiles:
+    - .env.example
+    - apps/server/.env.example
+    - apps/web/.env.example
+    - .aiox-core/
+    - .claude/
+  modifiedFilesTotalCount: 48
+  recentCommits:
+    - 'feat(db): generate initial Drizzle migrations for auth schema'
+  currentEpic: null
+  currentStory: null
+  lastUpdate: '2026-06-18T01:13:27.999Z'
+  isGitRepo: true
+timestamp: 1781745208001
+ttl: 60
+gitFingerprint: 1781727291528.236:1781744436301.0894

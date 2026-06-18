@@ -1,0 +1,26 @@
+{
+	"name": "@colorir/env",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./server": "./src/server.ts",
+		"./web": "./src/web.ts"
+	},
+	"scripts": {
+		"test": "vitest",
+		"test:run": "vitest run"
+	},
+	"dependencies": {
+		"@t3-oss/env-core": "^0.13.1",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@colorir/config": "workspace:*",
+		"@types/bun": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:",
+		"@vitest/coverage-v8": "catalog:"
+	}
+}
