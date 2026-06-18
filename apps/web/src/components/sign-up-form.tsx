@@ -63,6 +63,30 @@ export default function SignUpForm({
 		<div className="mx-auto mt-10 w-full max-w-md p-6">
 			<h1 className="mb-6 text-center font-bold text-3xl">Create Account</h1>
 
+			<Button
+				variant="outline"
+				className="w-full"
+				onClick={() =>
+					authClient.signIn.social({
+						provider: "google",
+						callbackURL: "/dashboard",
+					})
+				}
+			>
+				Sign Up with Google
+			</Button>
+
+			<div className="relative my-6">
+				<div className="absolute inset-0 flex items-center">
+					<span className="w-full border-t" />
+				</div>
+				<div className="relative flex justify-center text-xs uppercase">
+					<span className="bg-card px-2 text-muted-foreground">
+						Or continue with email
+					</span>
+				</div>
+			</div>
+
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
