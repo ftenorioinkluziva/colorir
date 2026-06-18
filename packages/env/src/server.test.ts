@@ -7,6 +7,8 @@ describe("env server", () => {
 			"test-secret-that-is-at-least-32-chars-long!!";
 		process.env.BETTER_AUTH_URL = "http://localhost:3000";
 		process.env.CORS_ORIGIN = "http://localhost:3001";
+		process.env.GOOGLE_CLIENT_ID = "test-google-client-id";
+		process.env.GOOGLE_CLIENT_SECRET = "test-google-client-secret";
 	});
 
 	it("should export env module", async () => {

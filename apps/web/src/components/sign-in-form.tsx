@@ -132,6 +132,30 @@ export default function SignInForm({
 				</form.Subscribe>
 			</form>
 
+			<div className="relative my-6">
+				<div className="absolute inset-0 flex items-center">
+					<span className="w-full border-t" />
+				</div>
+				<div className="relative flex justify-center text-xs uppercase">
+					<span className="bg-card px-2 text-muted-foreground">
+						Or continue with
+					</span>
+				</div>
+			</div>
+
+			<Button
+				variant="outline"
+				className="w-full"
+				onClick={() =>
+					authClient.signIn.social({
+						provider: "google",
+						callbackURL: "/dashboard",
+					})
+				}
+			>
+				Sign In with Google
+			</Button>
+
 			<div className="mt-4 text-center">
 				<Button
 					variant="link"
