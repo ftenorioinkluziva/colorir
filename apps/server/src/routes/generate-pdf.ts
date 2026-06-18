@@ -2,7 +2,7 @@ import { auth } from "@colorir/auth";
 import { createDb } from "@colorir/db";
 import { userImages } from "@colorir/db/schema/user-images";
 import { userPdfs } from "@colorir/db/schema/user-pdfs";
-import { downloadImage, uploadImage } from "@colorir/storage";
+import { downloadImage, getImageUrl, uploadImage } from "@colorir/storage";
 import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -105,10 +105,12 @@ app.post("/generate-pdf", async (c) => {
 			imageCount: images.length,
 		});
 
+		const signedUrl = await getImageUrl(key);
+
 		return c.json(
 			{
 				id,
-				url: key,
+				url: signedUrl,
 				imageCount: images.length,
 				createdAt: new Date().toISOString(),
 			},

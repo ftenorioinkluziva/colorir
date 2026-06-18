@@ -13,6 +13,8 @@ import { ImageIcon, Loader2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import PdfPreview from "@/components/pdf-preview";
+
 const STYLE_LABELS: Record<string, string> = {
 	mandala: "Mandala",
 	cozy: "Cozy",
@@ -53,6 +55,7 @@ function RouteComponent() {
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	const [deleting, setDeleting] = useState(false);
 	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [showPreview, setShowPreview] = useState(false);
 
 	const fetchImages = useCallback(async (pageNum: number, append: boolean) => {
 		if (append) {
@@ -271,9 +274,7 @@ function RouteComponent() {
 						<Button
 							variant="outline"
 							size="xs"
-							onClick={() =>
-								toast.info("Exportar PDF estará disponível em breve!")
-							}
+							onClick={() => setShowPreview(true)}
 						>
 							Exportar PDF
 						</Button>
@@ -322,6 +323,12 @@ function RouteComponent() {
 					</div>
 				</div>
 			)}
+
+			<PdfPreview
+				images={images.filter((img) => selectedIds.has(img.id))}
+				open={showPreview}
+				onClose={() => setShowPreview(false)}
+			/>
 
 			<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
 				{images.map((image) => (
