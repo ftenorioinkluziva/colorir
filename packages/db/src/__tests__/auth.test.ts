@@ -16,3 +16,15 @@ describe("auth schema", () => {
 		expect(mod.accountRelations).toBeDefined();
 	});
 });
+
+describe("user images schema", () => {
+	it("should export userImages table", async () => {
+		const mod = await import("../schema/user-images");
+		expect(mod.userImages).toBeDefined();
+	});
+
+	it("should export userImagesRelations", async () => {
+		const mod = await import("../schema/user-images");
+		expect(mod.userImagesRelations).toBeDefined();
+	});
+});
