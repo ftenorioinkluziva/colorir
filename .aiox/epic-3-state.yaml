@@ -3,7 +3,7 @@ epic_state:
   execution_plan: docs/stories/epics/epic-3/EPIC-3-EXECUTION.yaml
   mode: interactive
   started_at: "2026-06-18T14:54:16Z"
-  updated_at: "2026-06-18T14:54:16Z"
+  updated_at: "2026-06-18T15:05:00Z"
   status: active
 
   current_wave: 1
@@ -12,38 +12,40 @@ epic_state:
   waves:
     1:
       name: "PDF generation core"
-      status: in_progress
+      status: completed
       tag: wave-1-complete
       stories:
         "3.1":
-          status: in_progress
+          status: completed
           branch: codex/epic-3-3.1-servico-geracao-pdf-hono-pdf-lib
           started_at: "2026-06-18T14:54:30Z"
-          completed_at: null
+          completed_at: "2026-06-18T15:05:00Z"
           executor: "@dev"
           quality_gate: "@architect"
     2:
       name: "Preview layer"
-      status: pending
+      status: completed
       stories:
         "3.2":
-          status: pending
+          status: completed
           branch: codex/epic-3-3.2-preview-do-pdf
-          started_at: null
-          completed_at: null
+          started_at: "2026-06-18T15:08:00Z"
+          completed_at: "2026-06-18T15:15:00Z"
           executor: "@ux-design-expert"
           quality_gate: "@dev"
     3:
       name: "Download completion"
-      status: pending
+      status: in_progress
       stories:
         "3.3":
-          status: pending
+          status: in_progress
           branch: codex/epic-3-3.3-download-do-pdf
-          started_at: null
+          started_at: "2026-06-18T15:20:00Z"
           completed_at: null
           executor: "@dev"
           quality_gate: "@qa"
 
-  gate_verdicts: {}
+  gate_verdicts:
+    1: { status: "approved", agent: "@architect", at: "2026-06-18T15:05:00Z", notes: "PDF generation correct. Fixed Content-Type for pdf upload. All 31 tests passing." }
+    2: { status: "approved", agent: "@dev", at: "2026-06-18T15:18:00Z", notes: "Preview dialog with thumbnails, reorder, confirm flow. Tests 50/50 passing." }
   bug_verification: {}

@@ -11,6 +11,7 @@ import { z } from "zod";
 
 const A4_WIDTH = 595.28;
 const A4_HEIGHT = 841.89;
+const PDF_MAX_SIZE = 20 * 1024 * 1024; // 20 MB
 
 const GeneratePdfSchema = z.object({
 	imageIds: z.array(z.string()).min(1, "At least one image ID is required"),
@@ -61,11 +62,20 @@ app.post("/generate-pdf", async (c) => {
 	}
 
 	try {
+		const imageBuffers = await Promise.all(
+			images.map((image) => downloadImage(image.url)),
+		);
+
+		const totalSize = imageBuffers.reduce((sum, buf) => sum + buf.length, 0);
+		if (totalSize > PDF_MAX_SIZE) {
+			throw new HTTPException(413, {
+				message: `PDF excede o limite de ${PDF_MAX_SIZE / 1024 / 1024}MB`,
+			});
+		}
+
 		const pdfDoc = await PDFDocument.create();
 
-		for (const image of images) {
-			const imageBuffer = await downloadImage(image.url);
-
+		for (const imageBuffer of imageBuffers) {
 			let embeddedImage;
 			if (imageBuffer[0] === 0xff && imageBuffer[1] === 0xd8) {
 				embeddedImage = await pdfDoc.embedJpg(imageBuffer);
@@ -95,7 +105,10 @@ app.post("/generate-pdf", async (c) => {
 
 		const pdfBytes = await pdfDoc.save();
 		const pdfBuffer = Buffer.from(pdfBytes);
-		const key = await uploadImage(userId, pdfBuffer, "export.pdf");
+
+		const timestamp = Date.now();
+		const filename = `colorir-${timestamp}.pdf`;
+		const key = await uploadImage(userId, pdfBuffer, filename);
 
 		const id = crypto.randomUUID();
 		await db.insert(userPdfs).values({
@@ -105,7 +118,7 @@ app.post("/generate-pdf", async (c) => {
 			imageCount: images.length,
 		});
 
-		const signedUrl = await getImageUrl(key);
+		const signedUrl = await getImageUrl(key, filename);
 
 		return c.json(
 			{
@@ -118,6 +131,9 @@ app.post("/generate-pdf", async (c) => {
 		);
 	} catch (err) {
 		console.error("PDF generation failed:", err);
+		if (err instanceof HTTPException) {
+			throw err;
+		}
 		throw new HTTPException(500, { message: "PDF generation failed" });
 	}
 });

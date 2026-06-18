@@ -50,7 +50,13 @@ export async function uploadImage(
 
 	const ext = filename.split(".").pop()?.toLowerCase();
 	const contentType =
-		ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : ext === "pdf" ? "application/pdf" : "image/jpeg";
+		ext === "png"
+			? "image/png"
+			: ext === "webp"
+				? "image/webp"
+				: ext === "pdf"
+					? "application/pdf"
+					: "image/jpeg";
 
 	await c.send(
 		new PutObjectCommand({
@@ -64,13 +70,19 @@ export async function uploadImage(
 	return key;
 }
 
-export async function getImageUrl(imageId: string): Promise<string> {
+export async function getImageUrl(
+	imageId: string,
+	filename?: string,
+): Promise<string> {
 	const c = getClient();
 	const bucket = env.STORAGE_BUCKET;
 
 	const command = new GetObjectCommand({
 		Bucket: bucket,
 		Key: imageId,
+		...(filename && {
+			ResponseContentDisposition: `attachment; filename="${filename}"`,
+		}),
 	});
 
 	return getSignedUrl(c, command, { expiresIn: 3600 });
