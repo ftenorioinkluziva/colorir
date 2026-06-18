@@ -137,7 +137,7 @@ function RouteComponent() {
 
 			const data = await response.json();
 			setResult({
-				imageUrl: data.imageUrl,
+				imageUrl: data.url,
 				style: selectedStyle,
 				prompt: trimmedPrompt,
 			});
