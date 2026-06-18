@@ -4,7 +4,7 @@
 
 ## Executive Summary
 
-O **Colorir** é uma plataforma web que permite a geração sob demanda de páginas de livros de colorir personalizadas via IA, com compilação em PDF pronto para impressão. Resolve a dificuldade de pais, educadores e criadores de conteúdo em encontrar material de colorir temático e de qualidade — unindo generative AI (Gemini Nativo) com um motor de exportação PDF otimizado.
+O **Colorir** é uma plataforma web que permite a geração sob demanda de páginas de livros de colorir personalizadas via IA, com compilação em PDF pronto para impressão. Resolve a dificuldade de pais, educadores e criadores de conteúdo em encontrar material de colorir temático e de qualidade — unindo generative AI via **AI Gateway** com um motor de exportação PDF otimizado.
 
 Seu diferencial está na curadoria de estilos visuais (mandalas, cozy, botânica, infantil) e na orquestração eficiente de provedores de IA via backend Hono em monorepo modular. Visão de longo prazo inclui **Style Transfer & Remix** (upload de foto → line-art) e **Community Gallery** para compartilhamento de resultados.
 
@@ -22,7 +22,7 @@ O gap real é **customização temática sob demanda + prompting otimizado para 
 
 **Colorir** resolve através de três camadas:
 
-1. **Studio de geração otimizada** — Prompt templates e curadoria de estilos (mandala, cozy, botânica, infantil) que guiam o usuário a resultados consistentes de line-art preto e branco via Gemini Nativo
+1. **Studio de geração otimizada** — Prompt templates e curadoria de estilos (mandala, cozy, botânica, infantil) que guiam o usuário a resultados consistentes de line-art preto e branco via AI Gateway
 2. **Galeria inteligente** — Assets salvos por usuário com seleção em lote para ações de exportação
 3. **Motor de exportação PDF** — Compilação das imagens selecionadas em arquivo A4 pronto para impressão via `pdf-lib`, com quebras de página automáticas
 
@@ -55,7 +55,7 @@ O gap real é **customização temática sob demanda + prompting otimizado para 
 - **Retenção:** 40% dos usuários retornam na semana seguinte ao primeiro uso
 
 ### User Success Metrics
-- Tempo médio < 10s para gerar uma imagem via Gemini API
+- Tempo médio < 10s para gerar uma imagem via AI Gateway
 - 60% dos usuários completam o fluxo: gerar → selecionar → exportar PDF
 - Satisfação do usuário > 4/5 em pesquisa NPS simplificada
 
@@ -112,7 +112,7 @@ O gap real é **customização temática sob demanda + prompting otimizado para 
 - **Frontend:** React + TanStack Router + TailwindCSS + shadcn/ui
 - **Backend:** Hono (API routes)
 - **Database:** PostgreSQL + Drizzle ORM
-- **IA:** Gemini Nativo (`@google/genai`) com modelos `gemini-3-pro-image-preview` / `gemini-3.1-flash-image`
+- **IA:** AI Gateway (`ai` + `provider/model`) com seleção de modelo por capability e fallback configurável
 - **PDF:** `pdf-lib` (geração server-side em Node.js, sem DOM dependency)
 - **Auth:** better-auth com Google OAuth
 - **Storage:** MinIO (S3-compatible, self-hosted em Docker) — MVP; migração futura para Cloudflare R2 se necessário
@@ -121,7 +121,7 @@ O gap real é **customização temática sob demanda + prompting otimizado para 
 ### Architecture Considerations
 - **Repository:** Monorepo (apps/web, apps/api, packages/*)
 - **Service Architecture:** Backend Hono como BFF; IA chamada via server-side
-- **Integration:** Gemini API REST (`@google/genai`); Google OAuth via better-auth
+- **Integration:** AI Gateway via AI SDK (`ai`); Google OAuth via better-auth
 - **Deploy:** Docker Compose → Arcane → VPS Hetzner (CX22, ~€4-6/mês)
 - **Security:** Content safety filter para evitar geração de conteúdo impróprio
 
@@ -131,18 +131,18 @@ O gap real é **customização temática sob demanda + prompting otimizado para 
 - **Budget:** Bootstrapped / early stage — recursos limitados para APIs de IA
 - **Timeline:** MVP em desenvolvimento ativo (CLI-first conforme aiox-core)
 - **Recursos:** Time pequeno (provavelmente solo ou dupla)
-- **Técnicas:** Gemini API tem limites de rate e custo por requisição
+- **Técnicas:** AI Gateway e os provedores abaixo dele têm limites de rate e custo por requisição
 
 ### Key Assumptions
 - Usuário tem acesso a impressora para aproveitar o produto
-- Gemini Nativo mantém qualidade consistente de line-art com prompting adequado
+- AI Gateway mantém o provider/model desacoplado do produto e permite fallback entre provedores quando necessário
 - Usuário consegue navegar pelo fluxo sem tutorial extenso
 - O modelo de negócio inicial é gratuito (sem paywall no MVP)
 
 ## Risks & Open Questions
 
 ### Key Risks
-- **Qualidade da Gemini API** — Se o modelo não gerar line-art consistente, o produto perde o valor central. **Mitigação:** testar extensivamente antes do lançamento, ter fallback para Imagen
+- **Qualidade dos modelos do Gateway** — Se o modelo não gerar line-art consistente, o produto perde o valor central. **Mitigação:** testar extensivamente antes do lançamento, ter fallback por provider/model
 - **Custo de IA escala** — Se o produto crescer, custo por imagem pode inviabilizar modelo gratuito. **Mitigação:** caching de resultados, rate limiting, plano pago futuro
 - **Content Safety** — Usuários podem tentar gerar conteúdo impróprio. **Mitigação:** filtro de safety do Gemini + blacklist de prompts
 - **Baixa adoção** — Usuários podem preferir soluções gratuitas (SuperColoring). **Mitigação:** foco em diferenciais de personalização + PDF compilado
@@ -153,15 +153,15 @@ O gap real é **customização temática sob demanda + prompting otimizado para 
 - Qual estratégia de rate limiting para API de IA?
 
 ### Areas Needing Further Research
-- Capacidade real do Gemini Nativo para line-art consistente (testes práticos)
+- Capacidade real dos modelos image-capable expostos pelo AI Gateway para line-art consistente (testes práticos)
 - Custo projetado por usuário ativo
 - Concorrência direta de ferramentas similares baseadas em IA
 
 ## Appendices
 
 ### C. References
-- Gemini API Image Generation: https://ai.google.dev/gemini-api/docs/image-generation
-- `@google/genai` SDK: https://googleapis.github.io/js-genai
+- AI Gateway: https://vercel.com/docs/ai-gateway
+- AI SDK Providers and Models: https://ai-sdk.dev/docs/foundations/providers-and-models
 - `pdf-lib`: https://github.com/hopding/pdf-lib
 - better-auth: https://www.better-auth.com
 - MinIO: https://min.io
@@ -171,7 +171,7 @@ O gap real é **customização temática sob demanda + prompting otimizado para 
 ## Next Steps
 
 ### Immediate Actions
-1. Validar qualidade do Gemini Nativo para line-art com testes reais
+1. Validar qualidade dos modelos image-capable do AI Gateway para line-art com testes reais
 2. Setup inicial da VPS Hetzner com Arcane + Docker Compose
 3. Estruturar monorepo com Dockerfile para web + api
 4. Criar primeira story de dev (autenticação Google + setup DB + MinIO)

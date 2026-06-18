@@ -12,7 +12,7 @@
 
 ## 1. Introduction
 
-Este documento descreve a arquitetura fullstack do **Colorir**, incluindo backend (Hono), frontend (React + TanStack Router), infraestrutura (Docker + Arcane + Hetzner) e integrações (Gemini Nativo, MinIO, better-auth). Serve como blueprint único para o desenvolvimento orientado por IA.
+Este documento descreve a arquitetura fullstack do **Colorir**, incluindo backend (Hono), frontend (React + TanStack Router), infraestrutura (Docker + Arcane + Hetzner) e integrações (AI Gateway, MinIO, better-auth). Serve como blueprint único para o desenvolvimento orientado por IA.
 
 **Starter Template / Existing Project:** Greenfield, sem starter template. Inspirado no projeto anterior `coloring-book-v2`.
 
@@ -22,13 +22,13 @@ Este documento descreve a arquitetura fullstack do **Colorir**, incluindo backen
 
 ### Technical Summary
 
-O Colorir adota uma arquitetura **Monolith no backend com frontend SPA separado**, ambos containerizados via Docker Compose. O frontend React com TanStack Router consome uma API REST Hono que orquestra serviços internos (Gemini, pdf-lib, MinIO). PostgreSQL como banco relacional com Drizzle ORM. Tudo deployado via Arcane em VPS Hetzner.
+O Colorir adota uma arquitetura **Monolith no backend com frontend SPA separado**, ambos containerizados via Docker Compose. O frontend React com TanStack Router consome uma API REST Hono que orquestra serviços internos (AI Gateway, pdf-lib, MinIO). PostgreSQL como banco relacional com Drizzle ORM. Tudo deployado via Arcane em VPS Hetzner.
 
 ### High Level Overview
 
 - **Arquitetura:** Monolith backend (Hono) + SPA frontend (React)
 - **Repositório:** Monorepo (apps/web, apps/api, packages/shared, packages/config)
-- **Fluxo principal:** Usuário → Web App → Hono API → Gemini + MinIO + PostgreSQL
+- **Fluxo principal:** Usuário → Web App → Hono API → AI Gateway + MinIO + PostgreSQL
 - **Estilo de API:** REST (Hono routes)
 
 ### Architecture Diagram
@@ -42,7 +42,7 @@ graph TB
     subgraph "Backend (Docker)"
         HONO[Hono API Server\nREST]
         AUTH[better-auth Service]
-        GEMINI[Gemini Nativo Service\n@google/genai]
+        AI[AI Gateway Client\nai + provider/model]
         PDF[pdf-lib Service]
     end
 
@@ -53,16 +53,20 @@ graph TB
 
     subgraph "External"
         GOOGLE[Google OAuth]
-        GEMINI_API[Gemini API\nGoogle AI]
+        GATEWAY[AI Gateway\nVercel AI Gateway]
+        GOOGLE_API[Google / Vertex]
+        OPENAI_API[OpenAI]
     end
 
     WEB -->|HTTP REST| HONO
     HONO --> AUTH
-    HONO --> GEMINI
+    HONO --> AI
     HONO --> PDF
     AUTH --> PG
-    GEMINI --> GEMINI_API
-    GEMINI --> MINIO
+    AI --> GATEWAY
+    GATEWAY --> GOOGLE_API
+    GATEWAY --> OPENAI_API
+    AI --> MINIO
     PDF --> MINIO
     AUTH --> GOOGLE
 ```
@@ -72,7 +76,7 @@ graph TB
 - **Monolith Modular:** Backend Hono organizado por domínio (auth, images, pdf) — simplicidade do monolith com separação lógica de concerns
 - **Repository Pattern:** Acesso a dados via serviços dedicados, não ORM direto — testabilidade
 - **BFF Pattern:** Hono como backend-for-frontend, servindo dados prontos para o React consumir
-- **Service Layer Pattern:** Lógica de negócio isolada das rotas HTTP — cada serviço (Gemini, PDF, MinIO) com interface clara
+- **Service Layer Pattern:** Lógica de negócio isolada das rotas HTTP — cada serviço (AI Gateway, PDF, MinIO) com interface clara
 
 ---
 
@@ -94,7 +98,7 @@ graph TB
 | File Storage | MinIO | latest | S3-compatible | Self-hosted, Docker, MVP |
 | Cache | (não necessário no MVP) | - | - | Postergado |
 | Auth | better-auth | 1.2.x | Autenticação | Google OAuth nativo, Drizzle adapter |
-| IA SDK | @google/genai | 1.x | Gemini client | SDK oficial Google, suporte a imagem |
+| IA SDK | ai | 6.x | AI Gateway client | Provider/model strings + routing/fallback |
 | PDF | pdf-lib | latest | PDF generation | Server-side, zero DOM dependency |
 | Frontend Testing | Vitest | latest | Unit tests | Rápido, compatível com Vite |
 | Backend Testing | Vitest | latest | Unit + Integration | Mesma toolchain do frontend |
@@ -160,7 +164,7 @@ interface UserImage {
 | POST | `/api/auth/*` | better-auth handler | - |
 | GET | `/api/auth/session` | Check current session | Cookie |
 | GET | `/api/health` | Health check | - |
-| POST | `/api/images/generate` | Generate line-art via Gemini | ✅ |
+| POST | `/api/images/generate` | Generate line-art via AI Gateway | ✅ |
 | GET | `/api/images` | List user images (paginated) | ✅ |
 | DELETE | `/api/images/batch` | Delete multiple images | ✅ |
 | POST | `/api/pdfs/generate` | Generate PDF | ✅ |
@@ -173,7 +177,7 @@ interface UserImage {
 ```typescript
 interface ApiError {
   error: {
-    code: string       // e.g., "RATE_LIMITED", "GEMINI_TIMEOUT"
+    code: string       // e.g., "RATE_LIMITED", "AI_TIMEOUT"
     message: string
     details?: Record<string, unknown>
     timestamp: string
@@ -201,8 +205,8 @@ interface ApiError {
 - **Tech:** better-auth + Drizzle adapter
 
 ### Image Service (IA)
-- **Responsabilidade:** Chamar Gemini Nativo, processar resposta, upload MinIO
-- **Tech:** @google/genai + MinIO SDK + Drizzle
+- **Responsabilidade:** Chamar AI Gateway, processar resposta, upload MinIO
+- **Tech:** ai + MinIO SDK + Drizzle
 
 ### PDF Service
 - **Responsabilidade:** Compilar imagens em PDF A4, salvar no MinIO
@@ -218,7 +222,8 @@ graph LR
     HONO --> AUTH[Auth Service]
     HONO --> IMG[Image Service]
     HONO --> PDF[PDF Service]
-    IMG --> GEM[Gemini API]
+    IMG --> GW[AI Gateway]
+    GW --> PROV[Provider Model]
     IMG --> MINIO[MinIO]
     PDF --> MINIO
     AUTH --> PG[(PostgreSQL)]
@@ -239,7 +244,8 @@ sequenceDiagram
     participant HONO as Hono API
     participant AUTH as Auth Service
     participant IMG as Image Service
-    participant GEM as Gemini API
+    participant GW as AI Gateway
+    participant PROV as Provider Model
     participant MINIO as MinIO
     participant DB as PostgreSQL
 
@@ -248,8 +254,10 @@ sequenceDiagram
     HONO->>AUTH: Validate session
     AUTH-->>HONO: userId
     HONO->>IMG: generateImage(userId, style, prompt)
-    IMG->>GEM: generateContent(responseModalities: IMAGE)
-    GEM-->>IMG: base64 image data
+    IMG->>GW: generateContent(provider/model)
+    GW->>PROV: routed request
+    PROV-->>GW: base64 image data
+    GW-->>IMG: base64 image data
     IMG->>MINIO: upload buffer
     MINIO-->>IMG: imageUrl
     IMG->>DB: INSERT userImages
@@ -413,7 +421,8 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/colorir
 MINIO_ENDPOINT=http://localhost:9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
-GEMINI_API_KEY=your_key
+AI_GATEWAY_API_KEY=your_key
+VERCEL_OIDC_TOKEN=optional_local_token
 GOOGLE_CLIENT_ID=xxx
 GOOGLE_CLIENT_SECRET=xxx
 BETTER_AUTH_SECRET=xxx
@@ -515,7 +524,7 @@ jobs:
 ### Error Types
 - `AUTH_REQUIRED` (401) — sessão inválida/expirada
 - `RATE_LIMITED` (429) — limite de gerações excedido
-- `GEMINI_TIMEOUT` (504) — Gemini não respondeu
+- `AI_TIMEOUT` (504) — provedor do Gateway não respondeu
 - `CONTENT_BLOCKED` (422) — safety filter
 - `IMAGE_NOT_FOUND` (404) — imagem não encontrada
 - `PDF_GENERATION_FAILED` (500) — erro pdf-lib
@@ -666,7 +675,7 @@ app.get('/api/health', async (c) => {
 | 10. Accessibility | ❌ 0% (MVP skip) |
 
 ### Top Risks
-1. **Gemini API downtime** — sem fallback. Mitigação: retry + fallback Imagen
+1. **AI Gateway / provider downtime** — sem fallback. Mitigação: retry + provider ordering
 2. **MinIO sem backup** — Mitigação: snapshots periódicos do volume
 3. **Monitoring mínimo** — pino + health check cobrem MVP
 

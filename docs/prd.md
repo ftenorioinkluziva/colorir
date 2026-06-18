@@ -14,7 +14,7 @@
 
 ### Goals
 
-- Permitir que usuários gerem line-art personalizada via IA (Gemini Nativo) em segundos
+- Permitir que usuários gerem line-art personalizada via IA via AI Gateway em segundos
 - Compilar imagens selecionadas em PDF A4 otimizado para impressão
 - Oferecer curadoria de estilos (mandala, cozy, botânica, infantil) para resultados consistentes
 - Manter performance de navegação quase instantânea com TanStack Router
@@ -31,12 +31,12 @@ O Colorir nasce da necessidade de pais, educadores e criadores de conteúdo tere
 ### Functional
 
 - **FR1:** Login via Google OAuth (better-auth)
-- **FR2:** Gerar line-art B&W via Gemini Nativo (`@google/genai`)
+- **FR2:** Gerar line-art B&W via AI Gateway (`ai` + `provider/model`)
 - **FR3:** Prompts guiados por estilo curado (mandala, cozy, botânica, infantil)
 - **FR4:** Galeria visual de imagens por usuário
 - **FR5:** Seleção múltipla para ações em lote (excluir, exportar)
 - **FR6:** Compilar selecionadas em PDF A4 via `pdf-lib`
-- **FR7:** Content safety filter (Gemini + blacklist)
+- **FR7:** Content safety filter (provider-side safety + blacklist)
 - **FR8:** Armazenamento em MinIO vinculado ao ID do usuário
 
 ### Non-Functional
@@ -90,11 +90,11 @@ Interface limpa e focada, que guia o usuário em 3 passos: (1) escolher estilo e
 ```
 [Studio] → escolhe estilo → prompt → clica "Gerar"
     → valida limite diário → [Loading/Skeleton]
-    → Gemini processa → imagem salva no MinIO
+    → AI Gateway processa → imagem salva no MinIO
     → Galeria atualizada → Toast: "Imagem gerada!"
 ```
 
-**Edge cases:** Timeout Gemini → toast + "Tentar novamente"; Safety filter bloqueia → mensagem explicativa
+**Edge cases:** Timeout do provedor → toast + "Tentar novamente"; Safety filter bloqueia → mensagem explicativa
 
 #### Flow 3: Galeria — Seleção e Ações
 
@@ -141,7 +141,7 @@ Web Responsive (desktop + tablet)
 | **Backend** | Hono (API routes) |
 | **Database** | PostgreSQL self-hosted (Docker) |
 | **ORM** | Drizzle ORM |
-| **IA** | Gemini Nativo (`@google/genai`, modelos `gemini-3-pro-image-preview`) |
+| **IA** | AI Gateway (`ai`, `provider/model`) |
 | **PDF** | `pdf-lib` (server-side Node.js) |
 | **Auth** | better-auth + Google OAuth |
 | **Storage** | MinIO (S3-compatible, Docker) — MVP; Cloudflare R2 no futuro |
@@ -190,13 +190,13 @@ Web Responsive (desktop + tablet)
 
 ### Epic 2: AI Studio + Galeria
 
-> Integrar Gemini Nativo para geração de line-art, implementar o formulário de prompt com estilos curados, e exibir os resultados em uma galeria visual.
+> Integrar AI Gateway para geração de line-art, implementar o formulário de prompt com estilos curados, e exibir os resultados em uma galeria visual.
 
 **Stories:**
 
-**2.1 — Integração Gemini Nativo (Spike Técnico)**
-> Como desenvolvedor, quero testar a qualidade da line-art gerada pelo Gemini Nativo com diferentes prompts e estilos, para validar a viabilidade técnica antes de implementar a UI completa.
-- AC1: Conectar ao Gemini usando `@google/genai` com modelo `gemini-3-pro-image-preview`
+**2.1 — Integração AI Gateway (Spike Técnico)**
+> Como desenvolvedor, quero testar a qualidade da line-art gerada via AI Gateway com diferentes prompts e estilos, para validar a viabilidade técnica antes de implementar a UI completa.
+- AC1: Conectar ao AI Gateway usando `provider/model` validado no catálogo oficial
 - AC2: Testar prompts para cada estilo (mandala, cozy, botânica, infantil)
 - AC3: Validar que as imagens são B&W e próprias para colorir
 - AC4: Documentar resultados e prompts de referência
@@ -207,14 +207,14 @@ Web Responsive (desktop + tablet)
 - AC2: Campo de texto para prompt livre
 - AC3: Botão "Gerar" com loading state (skeleton/spinner)
 - AC4: Validação de limite diário de gerações (20/dia)
-- AC5: Chamada para API Hono que orquestra o Gemini
-- AC6: Tratamento de erro (timeout, falha Gemini, conteúdo bloqueado)
+- AC5: Chamada para API Hono que orquestra o AI Gateway
+- AC6: Tratamento de erro (timeout, falha do provedor, conteúdo bloqueado)
 
 **2.3 — API de Geração (Hono)**
-> Como desenvolvedor, quero uma rota POST `/api/generate-image` que orquestra a chamada ao Gemini e salva a imagem no MinIO, para que o frontend tenha um endpoint confiável.
+> Como desenvolvedor, quero uma rota POST `/api/generate-image` que orquestra a chamada ao AI Gateway e salva a imagem no MinIO, para que o frontend tenha um endpoint confiável.
 - AC1: Rota POST `/api/generate-image` recebendo {style, prompt}
 - AC2: Construção do prompt otimizado para line-art (system instruction)
-- AC3: Chamada ao Gemini com `response_modalities: ['image']`
+- AC3: Chamada ao AI Gateway com `response_modalities: ['image']` ou API equivalente suportada pelo modelo escolhido
 - AC4: Upload do resultado (base64 → buffer) para MinIO
 - AC5: Registro do metadado em `userImages` (userId, prompt, estilo, url)
 - AC6: Rate limiting por usuário
@@ -303,7 +303,7 @@ Web Responsive (desktop + tablet)
 
 ### Architect Prompt
 
-Este PRD está pronto para o **@architect (Aria)** iniciar o desenho da arquitetura do Colorir. O documento cobre o escopo completo do MVP em 3 épicos, com stories detalhadas e acceptance criteria. Foco especial no Epic 1 (Foundation) para estabelecer a base Docker + MinIO + Auth, seguido pelo Epic 2 (AI Studio + Galeria) com spike técnico do Gemini Nativo, e Epic 3 (Motor de Exportação PDF) com pdf-lib.
+Este PRD está pronto para o **@architect (Aria)** iniciar o desenho da arquitetura do Colorir. O documento cobre o escopo completo do MVP em 3 épicos, com stories detalhadas e acceptance criteria. Foco especial no Epic 1 (Foundation) para estabelecer a base Docker + MinIO + Auth, seguido pelo Epic 2 (AI Studio + Galeria) com spike técnico do AI Gateway, e Epic 3 (Motor de Exportação PDF) com pdf-lib.
 
 ### UX Expert Prompt
 

@@ -44,14 +44,14 @@ Browser ──> apps/web (React SPA) ──HTTP──> apps/server (Hono API) �
                           ^                        |
                           |                        v
                     TanStack Router          Better-Auth / Drizzle ORM
-                    Vite dev server           Google Gemini (AI SDK)
+                    Vite dev server           AI Gateway (AI SDK)
 ```
 
 - **Frontend:** Single-page application with file-based routing (TanStack Router)
 - **Backend:** Lightweight Hono HTTP server with inline route handlers
 - **Database:** PostgreSQL accessed via Drizzle ORM (auth tables only, no app tables)
 - **Auth:** Better-Auth with email/password, JWT sessions
-- **AI:** Google Gemini 2.5 Flash via Vercel AI SDK with streaming responses
+- **AI:** AI Gateway via Vercel AI SDK with streaming responses
 - **Monorepo:** Bun workspaces with isolated linker
 
 ### Actual Tech Stack
@@ -65,8 +65,8 @@ Browser ──> apps/web (React SPA) ──HTTP──> apps/server (Hono API) �
 | Styling | Tailwind CSS | 4.2.2 | CSS variables in OKLCH |
 | UI Components | Base UI (shadcn) | 1.0.0 | Headless, variant "base-lyra" |
 | Backend | Hono | 4.8.2 | All routes inline |
-| AI SDK | Vercel AI SDK | 6.0.3 | Google Gemini provider |
-| AI Model | Gemini 2.5 Flash | — | Via @ai-sdk/google |
+| AI SDK | Vercel AI SDK | 6.0.3 | AI Gateway provider/model routing |
+| AI Model | provider/model string | — | Via AI Gateway |
 | ORM | Drizzle ORM | 0.45.1 | PostgreSQL dialect |
 | Database | PostgreSQL | latest | — |
 | Auth | Better-Auth | 1.6.11 | Email/password, Drizzle adapter |
@@ -177,7 +177,7 @@ All database models are defined in `packages/db/src/schema/auth.ts`:
 | Method(s) | Path | Handler | Input Validation | Auth |
 |-----------|------|---------|-----------------|------|
 | POST, GET | `/api/auth/*` | Better-Auth handler | None (Better-Auth internal) | — |
-| POST | `/ai` | Inline streamText to Gemini | **None** | **None** |
+| POST | `/ai` | Inline streamText via AI Gateway | **None** | **None** |
 | GET | `/` | Returns `"OK"` | — | — |
 
 **All server logic is in a single file** (`apps/server/src/index.ts`, 44 lines).
@@ -225,14 +225,14 @@ export const authClient = createAuthClient({ baseURL: env.VITE_SERVER_URL });
 
 | Service | Purpose | Integration Type | Key Files |
 |---------|---------|------------------|-----------|
-| Google Gemini 2.5 Flash | AI Chat | Vercel AI SDK (`@ai-sdk/google`) | `apps/server/src/index.ts` |
+| AI Gateway | AI Chat | Vercel AI SDK (`ai`) | `apps/server/src/index.ts` |
 | PostgreSQL | Database | Drizzle ORM + `pg` driver | `packages/db/src/index.ts`, `packages/db/src/schema/auth.ts` |
 
 ### Internal Integration Points
 
 - **Frontend-Backend Communication**: REST API at `VITE_SERVER_URL` (default `http://localhost:3000`)
 - **Auth Flow**: Client -> `POST /api/auth/*` -> Better-Auth handler -> Drizzle ORM -> PostgreSQL
-- **AI Flow**: Client -> `POST /ai` -> `streamText` with Google Gemini -> Streaming response
+- **AI Flow**: Client -> `POST /ai` -> `streamText` with AI Gateway provider/model -> Streaming response
 - **Workspace Packages**: All `@colorir/*` packages are inter-linked via Bun workspaces; server bundles them via `noExternal: [/@colorir\/.*/]`
 
 ## Development and Deployment
@@ -251,7 +251,8 @@ DATABASE_URL=postgres://postgres:password@localhost:5432/colorir
 BETTER_AUTH_SECRET=<your-secret-min-32-chars>
 BETTER_AUTH_URL=http://localhost:3000
 CORS_ORIGIN=http://localhost:3001
-GOOGLE_GENERATIVE_AI_API_KEY=<your-gemini-key>
+AI_GATEWAY_API_KEY=<your-gateway-key>
+VERCEL_OIDC_TOKEN=<optional-local-token>
 ```
 
 **Required environment variables** (`apps/web/.env`):
@@ -325,6 +326,6 @@ bun run format:fix     # Format with auto-fix
 
 - **Auth issues**: Check `BETTER_AUTH_SECRET` (min 32 chars) and `CORS_ORIGIN` match the web dev server
 - **Database connection**: Verify PostgreSQL is running and `DATABASE_URL` is correct
-- **AI not working**: Verify `GOOGLE_GENERATIVE_AI_API_KEY` is set and valid
+- **AI not working**: Verify `AI_GATEWAY_API_KEY` or `VERCEL_OIDC_TOKEN` is set and valid
 - **CORS errors**: Ensure `CORS_ORIGIN` matches the frontend URL (http://localhost:3001 for dev)
 - **Build failures**: Check TypeScript strict mode errors — `noUncheckedIndexedAccess` and `verbatimModuleSyntax` are common sources

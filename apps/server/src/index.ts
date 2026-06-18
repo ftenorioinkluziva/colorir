@@ -1,8 +1,6 @@
-import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { google } from "@ai-sdk/google";
 import { auth } from "@colorir/auth";
 import { env } from "@colorir/env/server";
-import { convertToModelMessages, streamText, wrapLanguageModel } from "ai";
+import { convertToModelMessages, streamText } from "ai";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
@@ -38,12 +36,8 @@ app.post("/ai", async (c) => {
 		);
 	}
 
-	const model = wrapLanguageModel({
-		model: google("gemini-2.5-flash"),
-		middleware: devToolsMiddleware(),
-	});
 	const result = streamText({
-		model,
+		model: "openai/gpt-5.4",
 		messages: await convertToModelMessages(parsed.data.messages as any),
 	});
 
