@@ -13,7 +13,6 @@
 	},
 	"dependencies": {
 		"@ai-sdk/devtools": "^0.0.2",
-		"@ai-sdk/google": "^3.0.1",
 		"@colorir/auth": "workspace:*",
 		"@colorir/db": "workspace:*",
 		"@colorir/env": "workspace:*",

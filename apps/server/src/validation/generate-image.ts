@@ -1,7 +1,7 @@
 /**
  * Spike: AI Gateway Image Generation Test
  *
- * Tests line-art generation via AI SDK with AI Gateway for 4 curated styles.
+ * Tests line-art generation via AI Gateway for 4 curated styles.
  *
  * Usage:
  *   export AI_GATEWAY_API_KEY=your_key_here
@@ -15,7 +15,7 @@
 
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { generateText } from "ai";
+import { generateImage } from "ai";
 import { config } from "dotenv";
 import {
 	buildLineArtPrompt,
@@ -87,15 +87,12 @@ async function main() {
 			console.log(`Model: ${LINE_ART_MODEL}`);
 
 			try {
-				const result = await generateText({
+				const result = await generateImage({
 					model: LINE_ART_MODEL,
 					prompt: buildLineArtPrompt(key, prompt),
 				});
 
-				const images = result.files?.filter(
-					(f): f is NonNullable<typeof f> =>
-						!!f.mediaType?.startsWith("image/"),
-				);
+				const images = result.images;
 
 				if (images && images.length > 0) {
 					for (const file of images) {
@@ -107,24 +104,12 @@ async function main() {
 					}
 					results[key].push({ prompt, success: true });
 				} else {
-					if (result.text?.startsWith("data:image")) {
-						const base64Data = result.text.split(",")[1];
-						const buffer = Buffer.from(base64Data ?? "", "base64");
-						const filename = `${key}-${results[key].length}.png`;
-						const filepath = `${OUTPUT_DIR}/${filename}`;
-						await writeFile(filepath, buffer);
-						console.log(`  ✓ Saved (data URL): ${filepath}`);
-						results[key].push({ prompt, success: true });
-					} else {
-						console.log(
-							`  ✗ No image in response. Text: ${result.text?.slice(0, 100)}`,
-						);
-						results[key].push({
-							prompt,
-							success: false,
-							error: "No image generated",
-						});
-					}
+					console.log("  ✗ No image in response.");
+					results[key].push({
+						prompt,
+						success: false,
+						error: "No image generated",
+					});
 				}
 			} catch (err) {
 				const message = err instanceof Error ? err.message : String(err);

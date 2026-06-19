@@ -6,8 +6,8 @@ import {
 } from "./line-art";
 
 describe("buildLineArtPrompt", () => {
-	it("keeps the configured Gemini image model explicit", () => {
-		expect(LINE_ART_MODEL).toBe("google/gemini-2.5-flash-image");
+	it("keeps the configured AI Gateway image model explicit", () => {
+		expect(LINE_ART_MODEL).toBe("openai/gpt-image-1");
 	});
 
 	it("trims and includes the user subject", () => {

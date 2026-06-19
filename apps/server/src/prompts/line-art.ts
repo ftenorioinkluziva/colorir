@@ -1,4 +1,4 @@
-export const LINE_ART_MODEL = "google/gemini-2.5-flash-image";
+export const LINE_ART_MODEL = "openai/gpt-image-1";
 
 export const LINE_ART_STYLES = [
 	"mandala",

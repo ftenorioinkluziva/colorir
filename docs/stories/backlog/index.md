@@ -33,7 +33,7 @@ All stories in this backlog have been executed and are now marked as completed f
 - Epic 2 should follow once auth, storage, and database foundations are ready.
 - Epic 3 depends on image creation and selection workflows being available.
 - `1.3` and `1.4` are sibling foundation stories and can be developed in parallel after `1.2` if team capacity allows.
-- `2.1` is a spike and can start as soon as the base repo/platform is ready, but it should land before `2.2` and `2.3`.
+- `2.1` is a completed technical spike and remains the reference for prompt quality and gateway routing before `2.2` and `2.3`.
 - `3.1` is the first hard dependency for the PDF flow; `3.2` and `3.3` should not start before it.
 - The executable sprint plan lives in `sprint-plan.md`.
 
@@ -47,7 +47,7 @@ All stories in this backlog have been executed and are now marked as completed f
 | 1.2 | 1.1 | Unlocks schema-dependent work |
 | 1.3 | 1.1, 1.2 | Auth should follow the base infra and schema |
 | 1.4 | 1.1 | Can run alongside 1.3 after the base platform is ready |
-| 2.1 | 1.1 | Technical spike; can start early and de-risk 2.2/2.3 |
+| 2.1 | 1.1 | Completed spike; de-risks 2.2/2.3 with documented gateway behavior |
 | 2.2 | 1.3, 2.1 | UI should wait for auth and spike outcomes |
 | 2.3 | 1.2, 1.3, 1.4, 2.1 | API depends on storage, auth, and spike findings |
 | 2.4 | 1.3, 1.4, 2.3 | Gallery needs persisted images and auth context |

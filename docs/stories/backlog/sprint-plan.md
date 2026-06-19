@@ -52,7 +52,7 @@ Deliver image generation and gallery workflows.
 
 ### Dependency Notes
 
-- `2.1` should land first to de-risk the rest of the sprint.
+- `2.1` is the completed technical spike that de-risks the rest of the sprint.
 - `2.2` depends on auth and spike outcomes.
 - `2.3` depends on schema, auth, storage, and spike findings.
 - `2.4` depends on image persistence and API output.
@@ -64,7 +64,7 @@ Deliver image generation and gallery workflows.
 - Image generation API works end-to-end.
 - Gallery can display generated images.
 - Multi-select and batch action workflow is available.
-- Prompt quality is validated through real AI Gateway generation for all supported styles.
+- Prompt quality is validated through the completed AI Gateway spike and the follow-on prompt optimization work for all supported styles.
 
 ---
 
