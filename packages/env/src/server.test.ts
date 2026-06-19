@@ -9,6 +9,7 @@ describe("env server", () => {
 		process.env.CORS_ORIGIN = "http://localhost:3001";
 		process.env.GOOGLE_CLIENT_ID = "test-google-client-id";
 		process.env.GOOGLE_CLIENT_SECRET = "test-google-client-secret";
+		process.env.AI_GATEWAY_API_KEY = "test-ai-gateway-key";
 	});
 
 	it("should export env module", async () => {

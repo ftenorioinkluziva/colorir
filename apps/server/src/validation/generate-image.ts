@@ -1,10 +1,10 @@
 /**
  * Spike: AI Gateway Image Generation Test
  *
- * Tests line-art generation via AI SDK with Google Gemini for 4 curated styles.
+ * Tests line-art generation via AI SDK with AI Gateway for 4 curated styles.
  *
  * Usage:
- *   export GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
+ *   export AI_GATEWAY_API_KEY=your_key_here
  *   bun run apps/server/src/validation/generate-image.ts
  *
  * Or via the server:
@@ -16,55 +16,46 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { generateText } from "ai";
+import { config } from "dotenv";
+import {
+	buildLineArtPrompt,
+	LINE_ART_MODEL,
+	LINE_ART_STYLE_CONFIGS,
+	type LineArtStyle,
+} from "../prompts/line-art";
+
+config({ path: ".env" });
+if (existsSync("apps/server/.env")) {
+	config({ path: "apps/server/.env" });
+}
 
 // ============================================================
 // Configuration
 // ============================================================
 
-const MODEL = "google/gemini-2.5-flash-image";
 const OUTPUT_DIR = "spike-output";
 
 // ============================================================
 // Prompt Templates per Style
 // ============================================================
 
-const STYLE_CONFIGS = {
-	mandala: {
-		label: "Mandala",
-		system:
-			"You are a line-art coloring page generator. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. The design must be a symmetrical mandala with distinct sections suitable for coloring.",
-		prompts: [
-			"A large symmetrical mandala with concentric rings of petals, geometric diamonds, and dotwork borders. Clean bold outlines, no filled areas, white background.",
-			"Floral mandala with lotus center, layered petals radiating outward, and intricate border patterns. Black line-art on white, suitable for coloring.",
-		],
-	},
-	cozy: {
-		label: "Cozy (Aconchegante)",
-		system:
-			"You are a line-art coloring page generator. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. The scene should feel warm, comfortable, and inviting.",
-		prompts: [
-			"A cozy living room with a sofa, cushion, lamp casting soft light, a mug on a side table, and a sleeping cat. Clean line-art, black outlines only, white background.",
-			"A hygge-style tea corner: kettle, ceramic teapot, two cups, a small plant, and an open book. Simple B&W line-art suitable for coloring.",
-		],
-	},
-	botanica: {
-		label: "Botânica",
-		system:
-			"You are a line-art coloring page generator. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. Focus on botanical elements: leaves, vines, flowers, and branches.",
-		prompts: [
-			"A botanical composition of monstera leaves, ferns, and trailing vines arranged in a wreath. Clean black line-art, white background, coloring book style.",
-			"A vertical botanical illustration with a blooming rose, eucalyptus branches, daisies, and delicate leaves. B&W line-art with thick outlines.",
-		],
-	},
-	infantil: {
-		label: "Infantil",
-		system:
-			"You are a line-art coloring page generator for children. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. Keep shapes simple, cute, and easy to color for young children.",
-		prompts: [
-			"A cute cartoon bunny holding a big carrot, sitting in a small garden with flowers and a butterfly. Simple thick black outlines, white background, coloring page for kids.",
-			"A friendly dinosaur with a smiling face, surrounded by small clouds and a sun. Easy-to-color B&W line-art with bold clean strokes.",
-		],
-	},
+const STYLE_EXAMPLE_PROMPTS: Record<LineArtStyle, string[]> = {
+	mandala: [
+		"A large symmetrical mandala with concentric rings of petals, geometric diamonds, and dotwork borders.",
+		"Floral mandala with lotus center, layered petals radiating outward, and intricate border patterns.",
+	],
+	cozy: [
+		"A cozy living room with a sofa, cushion, lamp, a mug on a side table, and a sleeping cat.",
+		"A hygge-style tea corner with a kettle, ceramic teapot, two cups, a small plant, and an open book.",
+	],
+	botanica: [
+		"A botanical composition of monstera leaves, ferns, and trailing vines arranged in a wreath.",
+		"A vertical botanical illustration with a blooming rose, eucalyptus branches, daisies, and delicate leaves.",
+	],
+	infantil: [
+		"A cute cartoon bunny holding a big carrot, sitting in a small garden with flowers and a butterfly.",
+		"A friendly dinosaur with a smiling face, surrounded by small clouds and a sun.",
+	],
 };
 
 // ============================================================
@@ -81,21 +72,24 @@ async function main() {
 		{ prompt: string; success: boolean; error?: string }[]
 	> = {};
 
-	for (const [key, config] of Object.entries(STYLE_CONFIGS)) {
+	for (const [key, prompts] of Object.entries(STYLE_EXAMPLE_PROMPTS) as [
+		LineArtStyle,
+		string[],
+	][]) {
 		console.log(`\n${"=".repeat(60)}`);
-		console.log(`[${config.label}]`);
+		console.log(`[${LINE_ART_STYLE_CONFIGS[key].label}]`);
 		console.log(`${"=".repeat(60)}`);
 
 		results[key] = [];
 
-		for (const prompt of config.prompts) {
+		for (const prompt of prompts) {
 			console.log(`\nPrompt: ${prompt.slice(0, 80)}...`);
-			console.log(`Model: ${MODEL}`);
+			console.log(`Model: ${LINE_ART_MODEL}`);
 
 			try {
 				const result = await generateText({
-					model: MODEL,
-					prompt: `${config.system}\n\n${prompt}`,
+					model: LINE_ART_MODEL,
+					prompt: buildLineArtPrompt(key, prompt),
 				});
 
 				const images = result.files?.filter(

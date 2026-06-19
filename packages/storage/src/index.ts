@@ -74,8 +74,17 @@ export async function getImageUrl(
 	imageId: string,
 	filename?: string,
 ): Promise<string> {
-	const c = getClient();
 	const bucket = env.STORAGE_BUCKET;
+	const publicEndpoint = env.STORAGE_PUBLIC_ENDPOINT ?? env.STORAGE_ENDPOINT;
+	const publicClient = new S3Client({
+		endpoint: publicEndpoint,
+		region: env.STORAGE_REGION,
+		credentials: {
+			accessKeyId: env.STORAGE_ACCESS_KEY,
+			secretAccessKey: env.STORAGE_SECRET_KEY,
+		},
+		forcePathStyle: true,
+	});
 
 	const command = new GetObjectCommand({
 		Bucket: bucket,
@@ -85,7 +94,7 @@ export async function getImageUrl(
 		}),
 	});
 
-	return getSignedUrl(c, command, { expiresIn: 3600 });
+	return getSignedUrl(publicClient, command, { expiresIn: 3600 });
 }
 
 export async function downloadImage(key: string): Promise<Buffer> {
@@ -107,8 +116,11 @@ export async function downloadImage(key: string): Promise<Buffer> {
 
 function isNotFound(err: unknown): boolean {
 	if (err instanceof Error) {
-		const name = (err as any).name;
-		const status = (err as any).$metadata?.httpStatusCode;
+		const awsError = err as Error & {
+			$metadata?: { httpStatusCode?: number };
+		};
+		const name = awsError.name;
+		const status = awsError.$metadata?.httpStatusCode;
 		return name === "NotFound" || status === 404;
 	}
 	return false;
