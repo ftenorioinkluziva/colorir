@@ -76,12 +76,10 @@ app.post("/generate-pdf", async (c) => {
 		const pdfDoc = await PDFDocument.create();
 
 		for (const imageBuffer of imageBuffers) {
-			let embeddedImage;
-			if (imageBuffer[0] === 0xff && imageBuffer[1] === 0xd8) {
-				embeddedImage = await pdfDoc.embedJpg(imageBuffer);
-			} else {
-				embeddedImage = await pdfDoc.embedPng(imageBuffer);
-			}
+			const embeddedImage =
+				imageBuffer[0] === 0xff && imageBuffer[1] === 0xd8
+					? await pdfDoc.embedJpg(imageBuffer)
+					: await pdfDoc.embedPng(imageBuffer);
 
 			const page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
 			const { width, height } = embeddedImage.scale(1);

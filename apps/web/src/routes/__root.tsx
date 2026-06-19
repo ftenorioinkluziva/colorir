@@ -19,7 +19,7 @@ import Header from "@/components/header";
 
 import "../index.css";
 
-export type RouterAppContext = {};
+export type RouterAppContext = Record<string, never>;
 
 function RouteErrorComponent({
 	error,
