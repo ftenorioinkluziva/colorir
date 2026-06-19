@@ -3,6 +3,7 @@
 Source of truth: [docs/prd.md](../../prd.md)
 
 This plan turns the PRD backlog into an execution-ready sprint sequence.
+All three sprints have been executed and are retained here as a completed delivery record.
 
 ---
 
@@ -47,20 +48,23 @@ Deliver image generation and gallery workflows.
 1. `2.3` API de Geração (Hono)
 1. `2.4` Galeria de Imagens
 1. `2.5` Seleção Múltipla e Ações em Lote
+1. `2.6` Otimização de Prompt e Capacidade do Modelo
 
 ### Dependency Notes
 
-- `2.1` should land first to de-risk the rest of the sprint.
+- `2.1` is the completed technical spike that de-risks the rest of the sprint.
 - `2.2` depends on auth and spike outcomes.
 - `2.3` depends on schema, auth, storage, and spike findings.
 - `2.4` depends on image persistence and API output.
 - `2.5` depends on gallery selection.
+- `2.6` depends on the generation API and gallery flow, and validates prompt quality across supported styles.
 
 ### Exit Criteria
 
 - Image generation API works end-to-end.
 - Gallery can display generated images.
 - Multi-select and batch action workflow is available.
+- Prompt quality is validated through the completed AI Gateway spike and the follow-on prompt optimization work for all supported styles.
 
 ---
 
@@ -95,6 +99,7 @@ Complete the export loop from selection to downloadable PDF.
 - Sprint 1 must be complete before Sprint 2 starts.
 - Sprint 2 must be functionally complete before Sprint 3 starts.
 - The PRD backlog should be reprioritized only if dependency validation changes.
+- All release gates have been satisfied in the completed execution state.
 
 ---
 
@@ -103,3 +108,4 @@ Complete the export loop from selection to downloadable PDF.
 - Use [docs/stories/backlog/index.md](index.md) as the prioritized backlog.
 - Use [docs/stories/index.md](../index.md) as the PRD story map.
 - Keep implementation stories in `docs/stories/1.1-*` through `docs/stories/1.7-*` as historical references only.
+- Treat this sprint plan as archived documentation after closure of Epic 1, Epic 2, and Epic 3.

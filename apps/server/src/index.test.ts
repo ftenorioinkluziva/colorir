@@ -1,7 +1,26 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { describe, expect, it } from "vitest";
+import type { ZodIssue } from "zod";
 import { ZodError } from "zod";
+
+type ZodLikeIssue = {
+	code: ZodIssue["code"];
+	expected?: string;
+	path: Array<string | number>;
+	message: string;
+};
+
+type InvalidTypeIssue = Extract<ZodIssue, { code: "invalid_type" }>;
+
+type ZodLikeError = {
+	issues: ZodLikeIssue[];
+	message: string;
+};
+
+type ErrorWithCause = Error & {
+	cause?: unknown;
+};
 
 function isZodLikeError(err: unknown): err is {
 	issues: Array<{ message: string; path: Array<string | number> }>;
@@ -11,7 +30,7 @@ function isZodLikeError(err: unknown): err is {
 		typeof err === "object" &&
 		err !== null &&
 		"issues" in err &&
-		Array.isArray((err as any).issues)
+		Array.isArray((err as ZodLikeError).issues)
 	);
 }
 
@@ -23,14 +42,15 @@ function createApp(nodeEnv: "development" | "production") {
 			await next();
 		} catch (err) {
 			if (err instanceof Error) throw err;
-			throw Object.assign(new Error((err as any)?.message ?? String(err)), {
+			const errorLike = err as { message?: string };
+			throw Object.assign(new Error(errorLike.message ?? String(err)), {
 				cause: err,
 			});
 		}
 	});
 
 	app.onError((err, c) => {
-		const original = (err as any).cause;
+		const original = (err as ErrorWithCause).cause;
 		const isZodError = isZodLikeError(original);
 
 		const status = isZodError
@@ -54,7 +74,7 @@ function createApp(nodeEnv: "development" | "production") {
 			body.stack = err.stack;
 		}
 
-		return c.json(body, status as any);
+		return c.json(body, status);
 	});
 
 	app.get("/throw-zod", () => {
@@ -64,7 +84,7 @@ function createApp(nodeEnv: "development" | "production") {
 				expected: "string",
 				path: ["name"],
 				message: "Expected string, received number",
-			} as any,
+			} satisfies InvalidTypeIssue,
 		]);
 	});
 
@@ -94,9 +114,10 @@ describe("error handler", () => {
 			expect(res.status).toBe(400);
 			const body = (await res.json()) as Record<string, unknown>;
 			expect(body.error).toBe("Expected string, received number");
-			expect(body.details).toHaveLength(1);
-			expect((body.details as any)[0].path).toEqual(["name"]);
-			expect((body.details as any)[0].code).toBe("invalid_type");
+			const details = body.details as ZodLikeIssue[];
+			expect(details).toHaveLength(1);
+			expect(details[0]?.path).toEqual(["name"]);
+			expect(details[0]?.code).toBe("invalid_type");
 		});
 
 		it("returns 401 for HTTPException(401)", async () => {

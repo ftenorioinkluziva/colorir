@@ -1,0 +1,69 @@
+schema: 1
+story: "2.6"
+story_title: "Otimização de Prompt e Capacidade do Modelo"
+gate: PASS
+status_reason: "Implementation is technically sound, automated checks pass, and real AI Gateway visual validation succeeded for all four supported styles. CodeRabbit remains disabled for this project state and is not treated as a blocker."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-06-19T23:00:00-03:00"
+
+top_issues:
+  - id: "QA-2.6-002"
+    severity: low
+    category: tooling
+    description: "CodeRabbit automated review is documented as disabled/unavailable for this project state."
+    suggested_owner: po
+    refs:
+      - "docs/stories/backlog/epic-2/2.6-otimizacao-prompt-capacidade-modelo.md"
+
+waiver:
+  active: false
+
+quality_score: 95
+expires: "2026-07-03T23:00:00-03:00"
+
+evidence:
+  tests_reviewed:
+    count: 21
+  risks_identified:
+    count: 1
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: []
+  commands:
+    - "bun run --filter server test:run"
+    - "bun run --filter server check-types"
+    - "bunx biome check apps/server/src/prompts/line-art.ts apps/server/src/prompts/line-art.test.ts apps/server/src/routes/generate-image.ts apps/server/src/validation/generate-image.ts packages/storage/src/index.ts"
+    - "bun run apps/server/src/validation/generate-image.ts"
+  visual_validation:
+    generated_images:
+      count: 8
+      files:
+        - "spike-output/mandala-0.png"
+        - "spike-output/mandala-1.png"
+        - "spike-output/cozy-0.png"
+        - "spike-output/cozy-1.png"
+        - "spike-output/botanica-0.png"
+        - "spike-output/botanica-1.png"
+        - "spike-output/infantil-0.png"
+        - "spike-output/infantil-1.png"
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "No new auth, secret handling, or provider surface added. Endpoint still requires authenticated session and AI_GATEWAY_API_KEY."
+  performance:
+    status: PASS
+    notes: "Prompt construction is deterministic string assembly with negligible overhead."
+  reliability:
+    status: PASS
+    notes: "Shared prompt builder removes route/spike drift and preserves existing image-file error handling."
+  maintainability:
+    status: PASS
+    notes: "Prompt model/style configuration is centralized and covered by unit tests."
+
+recommendations:
+  immediate: []
+  future:
+    - action: "Re-enable CodeRabbit automated review when project integration is available."
+      refs:
+        - ".aiox-core/core-config.yaml"

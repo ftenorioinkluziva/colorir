@@ -3,21 +3,12 @@ import { createDb } from "@colorir/db";
 import { userImages } from "@colorir/db/schema/user-images";
 import { env } from "@colorir/env/server";
 import { getImageUrl, uploadImage } from "@colorir/storage";
-import { generateText } from "ai";
+import { generateImage } from "ai";
 import { and, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { buildLineArtPrompt, LINE_ART_MODEL } from "../prompts/line-art";
 import { GenerateImageSchema } from "../validation/ai";
-
-const SYSTEM_INSTRUCTIONS = {
-	mandala:
-		"You are a line-art coloring page generator. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. The design must be a symmetrical mandala with distinct sections suitable for coloring.",
-	cozy: "You are a line-art coloring page generator. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. The scene should feel warm, comfortable, and inviting.",
-	botanica:
-		"You are a line-art coloring page generator. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. Focus on botanical elements: leaves, vines, flowers, and branches.",
-	infantil:
-		"You are a line-art coloring page generator for children. Generate only B&W line-art with no shading, no gradients, and no filled areas. Use thick, clean, continuous black strokes on a white background. Keep shapes simple, cute, and easy to color for young children.",
-} as const;
 
 const MAX_DAILY_IMAGES = 20;
 
@@ -59,21 +50,18 @@ app.post("/generate-image", async (c) => {
 		});
 	}
 
-	if (!env.GOOGLE_GENERATIVE_AI_API_KEY) {
+	if (!env.AI_GATEWAY_API_KEY) {
 		throw new HTTPException(500, {
 			message: "AI provider not configured",
 		});
 	}
 
-	const systemInstruction = SYSTEM_INSTRUCTIONS[style];
-	const result = await generateText({
-		model: "google/gemini-2.5-flash-image",
-		prompt: `${systemInstruction}\n\n${prompt}`,
+	const result = await generateImage({
+		model: LINE_ART_MODEL,
+		prompt: buildLineArtPrompt(style, prompt),
 	});
 
-	const imageFile = result.files?.find((f) =>
-		f?.mediaType?.startsWith("image/"),
-	);
+	const imageFile = result.images?.at(0);
 	if (!imageFile?.uint8Array) {
 		throw new HTTPException(500, { message: "AI did not return an image" });
 	}

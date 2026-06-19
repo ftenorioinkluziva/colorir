@@ -37,7 +37,7 @@ The implementation stories in `docs/stories/1.1-*` through `docs/stories/1.7-*` 
 
 | Story | Title | Status | Draft |
 |------|-------|--------|-------|
-| 2.1 | [Integração AI Gateway (Spike Técnico)](backlog/epic-2/2.1-integracao-ai-gateway-spike-tecnico.md) | Draft | Validate line-art generation quality and prompting |
+| 2.1 | [Integração AI Gateway (Spike Técnico)](backlog/epic-2/2.1-integracao-ai-gateway-spike-tecnico.md) | Completed | Validate line-art generation quality and prompting |
 | 2.2 | [Studio: Formulário de Geração](backlog/epic-2/2.2-studio-formulario-de-geracao.md) | Draft | Style selector, prompt field, loading state, validation |
 | 2.3 | [API de Geração (Hono)](backlog/epic-2/2.3-api-de-geracao-hono.md) | Draft | POST endpoint, prompt orchestration, MinIO upload, rate limiting |
 | 2.4 | [Galeria de Imagens](backlog/epic-2/2.4-galeria-de-imagens.md) | Draft | Grid responsivo, empty state, loading state, pagination |

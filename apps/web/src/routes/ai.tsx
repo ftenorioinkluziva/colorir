@@ -23,6 +23,8 @@ function RouteComponent() {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
+		const lastMessage = messages.at(-1);
+		if (!lastMessage) return;
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
 

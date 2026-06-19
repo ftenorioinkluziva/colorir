@@ -90,6 +90,26 @@ execution:
         - apps/web/src/*
         - docs/stories/backlog/epic-2/2.5-selecao-multipla-acoes-em-lote.md
 
+    2.6:
+      id: 2.6
+      title: Otimização de Prompt e Capacidade do Modelo
+      file: 2.6-otimizacao-prompt-capacidade-modelo.md
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - prompt_regression_review
+        - visual_quality_review
+        - api_contract_check
+      branch: codex/epic-2-2.6-otimizacao-prompt-capacidade-modelo
+      complexity: medium
+      key_files:
+        - apps/server/src/prompts/line-art.ts
+        - apps/server/src/prompts/line-art.test.ts
+        - apps/server/src/routes/generate-image.ts
+        - apps/server/src/validation/generate-image.ts
+        - docs/qa/gates/2.6-otimizacao-prompt-capacidade-modelo.yml
+        - docs/stories/backlog/epic-2/2.6-otimizacao-prompt-capacidade-modelo.md
+
   waves:
     - number: 1
       name: "Spike and de-risk"
@@ -172,11 +192,32 @@ execution:
         notes: "Final gallery interaction layer before PDF export."
       tag: wave-4-complete
 
+    - number: 5
+      name: "Prompt optimization"
+      parallel: false
+      dependencies:
+        - 4
+      stories:
+        - 2.6
+      gate_agent: "@qa"
+      gate:
+        focus:
+          - Prompt adherence across all 4 styles
+          - Before/after quality comparison
+          - API response contract remains unchanged
+      merge:
+        order:
+          - codex/epic-2-2.6-otimizacao-prompt-capacidade-modelo
+        conflict_risk: low
+        notes: "Server-side prompt refinement; avoid UI and provider changes."
+      tag: wave-5-complete
+
   final_gate:
     agent: "@architect"
     focus:
       - AI generation path is validated
       - Studio, API, gallery, and batch actions integrate cleanly
+      - Prompt optimization preserves the API contract and improves line-art consistency
       - Epic 3 can begin with selection-ready data flows
     tag: epic-2-complete
 
@@ -201,3 +242,7 @@ execution:
       description: "Batch action safety or deletion mistakes"
       fixed_by: "2.5"
       verify: "Multi-select and confirmation flow work safely"
+    - bug: 6
+      description: "Prompt quality regressions or inconsistent line-art output"
+      fixed_by: "2.6"
+      verify: "Before/after comparison covers all 4 styles and confirms API contract compatibility"

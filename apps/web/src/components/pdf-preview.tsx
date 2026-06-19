@@ -7,7 +7,7 @@ import {
 	FileText,
 	Loader2,
 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type PreviewImage = {
 	id: string;
@@ -32,6 +32,12 @@ export default function PdfPreview({ images, open, onClose }: PdfPreviewProps) {
 	const [error, setError] = useState<string | null>(null);
 
 	const imageMap = new Map(images.map((img) => [img.id, img.url]));
+
+	useEffect(() => {
+		if (open) {
+			setOrderedIds(images.map((img) => img.id));
+		}
+	}, [images, open]);
 
 	const moveUp = useCallback((index: number) => {
 		if (index === 0) return;
@@ -60,6 +66,10 @@ export default function PdfPreview({ images, open, onClose }: PdfPreviewProps) {
 		setResult(null);
 
 		try {
+			if (orderedIds.length === 0) {
+				throw new Error("Selecione pelo menos uma imagem para exportar");
+			}
+
 			const response = await fetch(`${env.VITE_SERVER_URL}/api/generate-pdf`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

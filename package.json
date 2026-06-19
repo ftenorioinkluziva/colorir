@@ -25,9 +25,10 @@
 	},
 	"type": "module",
 	"scripts": {
-		"dev": "bun run --filter '*' dev",
-		"build": "bun run --filter '*' build",
-		"check-types": "bun run --filter '*' check-types",
+		"dev": "bun run --filter server dev & bun run --filter web dev",
+		"build": "bun run --filter server build && bun run --filter web build",
+		"check-types": "bun run --filter server check-types && bun run --filter web check-types && bun run --filter @colorir/storage check-types && bun run --filter @colorir/ui check-types",
+		"lint": "biome check apps packages docs .aiox package.json biome.json",
 		"dev:web": "bun run --filter web dev",
 		"dev:server": "bun run --filter server dev",
 		"db:push": "bun run --filter @colorir/db db:push",
@@ -42,9 +43,10 @@
 		"docker:up": "docker compose up -d --build",
 		"docker:down": "docker compose down",
 		"docker:logs": "docker compose logs -f",
-		"test": "bun run --filter '*' test",
-		"test:run": "bun run --filter '*' test:run",
-		"check": "biome check --write ."
+		"test": "bun run --filter server test && bun run --filter web test && bun run --filter @colorir/auth test && bun run --filter @colorir/db test && bun run --filter @colorir/env test && bun run --filter @colorir/storage test && bun run --filter @colorir/ui test",
+		"test:run": "bun run --filter server test:run && bun run --filter web test:run && bun run --filter @colorir/auth test:run && bun run --filter @colorir/db test:run && bun run --filter @colorir/env test:run && bun run --filter @colorir/storage test:run && bun run --filter @colorir/ui test:run",
+		"check": "biome check --write .",
+		"typecheck": "bun run check-types"
 	},
 	"dependencies": {
 		"@colorir/env": "workspace:*",

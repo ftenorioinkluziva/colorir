@@ -4,7 +4,7 @@ epic_state:
   mode: interactive
   started_at: "2026-06-18T14:54:16Z"
   updated_at: "2026-06-18T15:05:00Z"
-  status: active
+  status: completed
 
   current_wave: 1
   total_waves: 3
@@ -35,17 +35,26 @@ epic_state:
           quality_gate: "@dev"
     3:
       name: "Download completion"
-      status: in_progress
+      status: completed
       stories:
         "3.3":
-          status: in_progress
+          status: completed
           branch: codex/epic-3-3.3-download-do-pdf
           started_at: "2026-06-18T15:20:00Z"
-          completed_at: null
+          completed_at: "2026-06-18T15:28:00Z"
           executor: "@dev"
           quality_gate: "@qa"
 
   gate_verdicts:
     1: { status: "approved", agent: "@architect", at: "2026-06-18T15:05:00Z", notes: "PDF generation correct. Fixed Content-Type for pdf upload. All 31 tests passing." }
     2: { status: "approved", agent: "@dev", at: "2026-06-18T15:18:00Z", notes: "Preview dialog with thumbnails, reorder, confirm flow. Tests 50/50 passing." }
-  bug_verification: {}
+    3: { status: "approved", agent: "@qa", at: "2026-06-18T15:30:00Z", notes: "Filename pattern, signed URL safety, size limit, progress feedback verified." }
+  bug_verification:
+    1: { verified: true, fixed_by: "3.1", notes: "A4 pdf-lib generation, one image per page, auto page break" }
+    2: { verified: true, fixed_by: "3.2", notes: "Preview modal with thumbnails, up/down reorder, confirm flow" }
+    3: { verified: true, fixed_by: "3.3", notes: "Filename colorir-{timestamp}.pdf, signed URL, 20MB limit" }
+  final_gate:
+    verdict: approved
+    agent: "@architect"
+    at: "2026-06-18T15:35:00Z"
+    tag: epic-3-complete

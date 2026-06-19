@@ -14,6 +14,15 @@ import { ChatRequestSchema } from "./validation/ai";
 
 const app = new Hono();
 
+type ZodLikeError = {
+	issues: Array<{ message: string; path: Array<string | number> }>;
+	message?: string;
+};
+
+type ErrorWithCause = Error & {
+	cause?: unknown;
+};
+
 ensureBucket().catch((err: unknown) => {
 	console.error("Failed to ensure storage bucket:", err);
 });
@@ -61,7 +70,11 @@ app.post("/ai", async (c) => {
 
 	const result = streamText({
 		model: "openai/gpt-5.4",
-		messages: await convertToModelMessages(parsed.data.messages as any),
+		messages: await convertToModelMessages(
+			parsed.data.messages as unknown as Parameters<
+				typeof convertToModelMessages
+			>[0],
+		),
 	});
 
 	return result.toUIMessageStreamResponse();
@@ -79,7 +92,7 @@ function isZodLikeError(err: unknown): err is {
 		typeof err === "object" &&
 		err !== null &&
 		"issues" in err &&
-		Array.isArray((err as any).issues)
+		Array.isArray((err as ZodLikeError).issues)
 	);
 }
 
@@ -88,14 +101,15 @@ app.use("*", async (_c, next) => {
 		await next();
 	} catch (err) {
 		if (err instanceof Error) throw err;
-		throw Object.assign(new Error((err as any)?.message ?? String(err)), {
+		const errorLike = err as { message?: string };
+		throw Object.assign(new Error(errorLike.message ?? String(err)), {
 			cause: err,
 		});
 	}
 });
 
 app.onError((err, c) => {
-	const original = (err as any).cause;
+	const original = (err as ErrorWithCause).cause;
 	const isZodError = isZodLikeError(original);
 
 	const status = isZodError
@@ -129,7 +143,7 @@ app.onError((err, c) => {
 		body.stack = err.stack;
 	}
 
-	return c.json(body, status as any);
+	return c.json(body, status);
 });
 
 export default app;
