@@ -49,6 +49,8 @@ Deliver image generation and gallery workflows.
 1. `2.4` Galeria de Imagens
 1. `2.5` Seleção Múltipla e Ações em Lote
 1. `2.6` Otimização de Prompt e Capacidade do Modelo
+1. `2.7` Parâmetros Avançados de Geração de Imagem
+1. `2.8` Migrar Geração de Imagem para generateText (Gemini)
 
 ### Dependency Notes
 

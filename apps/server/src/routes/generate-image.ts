@@ -3,7 +3,7 @@ import { createDb } from "@colorir/db";
 import { userImages } from "@colorir/db/schema/user-images";
 import { env } from "@colorir/env/server";
 import { getImageUrl, uploadImage } from "@colorir/storage";
-import { generateImage } from "ai";
+import { generateText } from "ai";
 import { and, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -28,7 +28,7 @@ app.post("/generate-image", async (c) => {
 			cause: parsed.error,
 		});
 	}
-	const { style, prompt } = parsed.data;
+	const { style, prompt, seed, providerOptions } = parsed.data;
 
 	const db = createDb();
 	const today = new Date();
@@ -56,18 +56,22 @@ app.post("/generate-image", async (c) => {
 		});
 	}
 
-	const result = await generateImage({
+	const result = await generateText({
 		model: LINE_ART_MODEL,
 		prompt: buildLineArtPrompt(style, prompt),
+		...(seed !== undefined && { seed }),
+		...(providerOptions && { providerOptions: providerOptions as never }),
 	});
 
-	const imageFile = result.images?.at(0);
+	const imageFile = result.files?.find((f) =>
+		f.mediaType?.startsWith("image/"),
+	);
 	if (!imageFile?.uint8Array) {
-		throw new HTTPException(500, { message: "AI did not return an image" });
+		throw new HTTPException(500, { message: "AI did not return images" });
 	}
 
-	const ext = imageFile.mediaType?.split("/").at(1) ?? "png";
-	const filename = `${style}_${Date.now()}.${ext}`;
+	const ext = imageFile.mediaType.split("/").at(1) ?? "png";
+	const filename = `${style}_${Date.now()}_${crypto.randomUUID().slice(0, 8)}.${ext}`;
 	const key = await uploadImage(
 		userId,
 		Buffer.from(imageFile.uint8Array),
@@ -86,10 +90,12 @@ app.post("/generate-image", async (c) => {
 
 	return c.json(
 		{
-			id,
-			url,
+			images: [{ id, url }],
 			style,
 			prompt,
+			params: {
+				...(seed !== undefined && { seed }),
+			},
 			createdAt: new Date().toISOString(),
 		},
 		201,

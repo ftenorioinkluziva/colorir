@@ -1,0 +1,53 @@
+schema: 1
+story: "2.8"
+story_title: "Migrar Geração de Imagem para generateText (Gemini)"
+gate: PASS
+status_reason: "All 10 ACs met. 25/25 tests passing, biome lint clean, server + web typecheck pass. Clean migration from generateImage to generateText with preserved response contract. Minor type fix applied in test file."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-06-19T20:10:00-03:00"
+
+top_issues:
+  - severity: medium
+    description: "Real-world quality comparison test not automated (requires live AI gateway)"
+    suggested_owner: dev
+    refs: ["docs/stories/backlog/epic-2/2.8-migrar-generate-image-para-generate-text.md"]
+
+waiver:
+  active: false
+
+quality_score: 95
+expires: "2026-07-03T20:10:00-03:00"
+
+evidence:
+  tests_reviewed:
+    count: 25
+  risks_identified:
+    count: 1
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    ac_gaps: []
+  commands:
+    - "bun run --filter server test:run"
+    - "bun run --filter server check-types"
+    - "bun run --filter web check-types"
+    - "bunx biome check apps/server/src/validation/ai.ts apps/server/src/validation/ai.test.ts apps/server/src/routes/generate-image.ts apps/server/src/validation/generate-image.ts apps/web/src/routes/studio.tsx"
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "No new auth surface. Same authentication flow. providerOptions cast unchanged from 2.7."
+  performance:
+    status: PASS
+    notes: "Simpler single-image path vs 2.7 multi-image Promise.all. Gemini 2.5 Flash expected faster than dedicated image models."
+  reliability:
+    status: PASS
+    notes: "Image extraction via result.files.find() with mediaType filtering. uint8Array null check preserved."
+  maintainability:
+    status: PASS
+    notes: "Schema simplified (3 fields removed). Route streamlined. Prompt simplified. Cleaner than 2.7."
+
+recommendations:
+  immediate: []
+  future:
+    - action: "Automate quality comparison test when AI gateway mocking is available"
+      refs: ["apps/server/src/validation/generate-image.ts"]

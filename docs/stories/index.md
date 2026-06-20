@@ -41,7 +41,9 @@ The implementation stories in `docs/stories/1.1-*` through `docs/stories/1.7-*` 
 | 2.2 | [Studio: Formulário de Geração](backlog/epic-2/2.2-studio-formulario-de-geracao.md) | Draft | Style selector, prompt field, loading state, validation |
 | 2.3 | [API de Geração (Hono)](backlog/epic-2/2.3-api-de-geracao-hono.md) | Draft | POST endpoint, prompt orchestration, MinIO upload, rate limiting |
 | 2.4 | [Galeria de Imagens](backlog/epic-2/2.4-galeria-de-imagens.md) | Draft | Grid responsivo, empty state, loading state, pagination |
-| 2.5 | [Seleção Múltipla e Ações em Lote](backlog/epic-2/2.5-selecao-multipla-acoes-em-lote.md) | Draft | Multi-select, export PDF, delete selected, confirmation |
+| 2.5 | [Seleção Múltipla e Ações em Lote](backlog/epic-2/2.5-selecao-multipla-acoes-em-lote.md) | Completed | Multi-select, export PDF, delete selected, confirmation |
+| 2.7 | [Parâmetros Avançados de Geração de Imagem](backlog/epic-2/2.7-parametros-avancados-geracao-imagem.md) | Completed | aspectRatio, n, size, seed, providerOptions |
+| 2.8 | [Migrar Geração de Imagem para generateText (Gemini)](backlog/epic-2/2.8-migrar-generate-image-para-generate-text.md) | Draft | generateText, gemini-2.5-flash-image, result.files, qualidade superior |
 
 ### Story Notes
 

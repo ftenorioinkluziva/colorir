@@ -13,6 +13,8 @@ export const ChatRequestSchema = z.object({
 export const GenerateImageSchema = z.object({
 	style: z.enum(["mandala", "cozy", "botanica", "infantil"]),
 	prompt: z.string().min(1),
+	seed: z.number().int().optional(),
+	providerOptions: z.record(z.string(), z.any()).optional(),
 });
 
 export type Message = z.infer<typeof MessageSchema>;

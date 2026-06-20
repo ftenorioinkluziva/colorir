@@ -15,7 +15,7 @@
 
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { generateImage } from "ai";
+import { generateText } from "ai";
 import { config } from "dotenv";
 import {
 	buildLineArtPrompt,
@@ -87,21 +87,21 @@ async function main() {
 			console.log(`Model: ${LINE_ART_MODEL}`);
 
 			try {
-				const result = await generateImage({
+				const result = await generateText({
 					model: LINE_ART_MODEL,
 					prompt: buildLineArtPrompt(key, prompt),
 				});
 
-				const images = result.images;
+				const imageFile = result.files?.find((f) =>
+					f.mediaType?.startsWith("image/"),
+				);
 
-				if (images && images.length > 0) {
-					for (const file of images) {
-						const ext = file.mediaType.split("/").at(1) ?? "png";
-						const filename = `${key}-${results[key].length}.${ext}`;
-						const filepath = `${OUTPUT_DIR}/${filename}`;
-						await writeFile(filepath, file.uint8Array);
-						console.log(`  ✓ Saved: ${filepath} (${file.mediaType})`);
-					}
+				if (imageFile?.uint8Array) {
+					const ext = imageFile.mediaType.split("/").at(1) ?? "png";
+					const filename = `${key}-${results[key].length}.${ext}`;
+					const filepath = `${OUTPUT_DIR}/${filename}`;
+					await writeFile(filepath, imageFile.uint8Array);
+					console.log(`  ✓ Saved: ${filepath} (${imageFile.mediaType})`);
 					results[key].push({ prompt, success: true });
 				} else {
 					console.log("  ✗ No image in response.");

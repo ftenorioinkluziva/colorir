@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ChatRequestSchema, MessageSchema } from "./ai";
+import { ChatRequestSchema, GenerateImageSchema, MessageSchema } from "./ai";
 
 describe("MessageSchema", () => {
 	it("validates a valid user message", () => {
@@ -83,6 +83,51 @@ describe("ChatRequestSchema", () => {
 			expect(result.error.issues.some((i) => i.code === "invalid_type")).toBe(
 				true,
 			);
+		}
+	});
+});
+
+describe("GenerateImageSchema", () => {
+	it("validates required fields only (backward compatible)", () => {
+		const result = GenerateImageSchema.safeParse({
+			style: "mandala",
+			prompt: "a test prompt",
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts optional seed", () => {
+		const result = GenerateImageSchema.safeParse({
+			style: "mandala",
+			prompt: "test",
+			seed: 42,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts optional providerOptions", () => {
+		const result = GenerateImageSchema.safeParse({
+			style: "mandala",
+			prompt: "test",
+			providerOptions: { google: { key: "value" } },
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("strips removed fields (aspectRatio, n, size) silently", () => {
+		const result = GenerateImageSchema.safeParse({
+			style: "mandala",
+			prompt: "test",
+			aspectRatio: "16:9",
+			n: 2,
+			size: "1024x1024",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			const data = result.data as Record<string, unknown>;
+			expect(data.aspectRatio).toBeUndefined();
+			expect(data.n).toBeUndefined();
+			expect(data.size).toBeUndefined();
 		}
 	});
 });

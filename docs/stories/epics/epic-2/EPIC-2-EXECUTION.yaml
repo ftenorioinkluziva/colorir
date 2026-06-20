@@ -110,6 +110,48 @@ execution:
         - docs/qa/gates/2.6-otimizacao-prompt-capacidade-modelo.yml
         - docs/stories/backlog/epic-2/2.6-otimizacao-prompt-capacidade-modelo.md
 
+    2.7:
+      id: 2.7
+      title: Parâmetros Avançados de Geração de Imagem
+      file: 2.7-parametros-avancados-geracao-imagem.md
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - api_contract_review
+        - validation_review
+        - ui_review
+      branch: codex/epic-2-2.7-parametros-avancados-geracao-imagem
+      complexity: high
+      key_files:
+        - apps/server/src/validation/ai.ts
+        - apps/server/src/routes/generate-image.ts
+        - apps/server/src/validation/generate-image.ts
+        - apps/web/src/*
+        - docs/stories/backlog/epic-2/2.7-parametros-avancados-geracao-imagem.md
+        - docs/qa/gates/2.7-parametros-avancados-geracao-imagem.yml
+
+    2.8:
+      id: 2.8
+      title: Migrar Geração de Imagem para generateText (Gemini)
+      file: 2.8-migrar-generate-image-para-generate-text.md
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - api_contract_review
+        - visual_quality_review
+        - validation_review
+      branch: codex/epic-2-2.8-migrar-generate-image-para-generate-text
+      complexity: medium
+      key_files:
+        - apps/server/src/routes/generate-image.ts
+        - apps/server/src/validation/ai.ts
+        - apps/server/src/validation/ai.test.ts
+        - apps/server/src/prompts/line-art.ts
+        - apps/server/src/prompts/line-art.test.ts
+        - apps/server/src/validation/generate-image.ts
+        - apps/web/src/routes/studio.tsx
+        - docs/stories/backlog/epic-2/2.8-migrar-generate-image-para-generate-text.md
+
   waves:
     - number: 1
       name: "Spike and de-risk"
@@ -212,12 +254,54 @@ execution:
         notes: "Server-side prompt refinement; avoid UI and provider changes."
       tag: wave-5-complete
 
+    - number: 6
+      name: "Advanced generation parameters"
+      parallel: false
+      dependencies:
+        - 5
+      stories:
+        - 2.7
+      gate_agent: "@qa"
+      gate:
+        focus:
+          - API contract backward compatibility
+          - Multi-image upload and response handling
+          - UI controls for aspectRatio, n, size, seed
+      merge:
+        order:
+          - codex/epic-2-2.7-parametros-avancados-geracao-imagem
+        conflict_risk: medium
+        notes: "Schema, route, frontend, and validation spike changes."
+      tag: wave-6-complete
+
+    - number: 7
+      name: "Migrate to generateText (Gemini)"
+      parallel: false
+      dependencies:
+        - 6
+      stories:
+        - 2.8
+      gate_agent: "@qa"
+      gate:
+        focus:
+          - Image quality comparison (generateImage vs generateText)
+          - API contract backward compatibility 
+          - Schema simplification (remove aspectRatio, size, n)
+      merge:
+        order:
+          - codex/epic-2-2.8-migrar-generate-image-para-generate-text
+        conflict_risk: medium
+        notes: "Revert dedicated image model; use Gemini via generateText for superior line-art quality."
+      tag: wave-7-complete
+
   final_gate:
     agent: "@architect"
     focus:
       - AI generation path is validated
       - Studio, API, gallery, and batch actions integrate cleanly
       - Prompt optimization preserves the API contract and improves line-art consistency
+      - Advanced generation parameters are exposed and functional
+      - generateText migration produces superior line-art quality compared to generateImage
       - Epic 3 can begin with selection-ready data flows
     tag: epic-2-complete
 
@@ -246,3 +330,11 @@ execution:
       description: "Prompt quality regressions or inconsistent line-art output"
       fixed_by: "2.6"
       verify: "Before/after comparison covers all 4 styles and confirms API contract compatibility"
+    - bug: 7
+      description: "Missing or broken image generation parameters (aspectRatio, n, size, seed)"
+      fixed_by: "2.7"
+      verify: "API accepts and propagates optional parameters; UI controls are functional; multi-image upload works"
+    - bug: 8
+      description: "Inferior image quality from dedicated image models via generateImage"
+      fixed_by: "2.8"
+      verify: "API uses generateText with gemini-2.5-flash-image; line-art quality is superior to generateImage approach"

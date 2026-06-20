@@ -1,0 +1,24 @@
+handoff:
+  version: "1.0"
+  timestamp: "2026-06-19T15:01:16Z"
+  from_agent: "po"
+  to_agent: "sm"
+  story_context:
+    story_id: "2.7"
+    story_path: "docs/stories/backlog/epic-2/2.7-parametros-avancados-geracao-imagem.md"
+    story_status: "Draft"
+    current_task: "Refine story draft after PO validation NO-GO"
+    branch: "master"
+  decisions:
+    - "Story validated as NO-GO (6.5/10) by @po"
+    - "Missing CodeRabbit Integration section (blocking)"
+    - "Missing formal Executor Assignment fields"
+    - "Epic execution YAML lacks explicit 2.7 stories entry"
+  actions_required:
+    - "Add 🤖 CodeRabbit Integration section: Story Type Analysis (Code/Features + Frontend, Medium), Specialized Agents (@dev primary), Quality Gates (Pre-Commit, Pre-PR), Self-Healing (full mode, 3 iter, 30min), Focus Areas (API backward compat, multi-image upload, UI controls)"
+    - "Add formal executor/quality_gate/quality_gate_tools fields to story (executor: @dev, quality_gate: @qa, tools: api_contract_review, validation_review, ui_review)"
+  files_modified: []
+  blockers: []
+  next_action: "Use *draft 2.7 to refine the story with CodeRabbit Integration and Executor Assignment sections"
+  consumed: true
+

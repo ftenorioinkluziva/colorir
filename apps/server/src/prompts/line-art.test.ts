@@ -7,7 +7,7 @@ import {
 
 describe("buildLineArtPrompt", () => {
 	it("keeps the configured AI Gateway image model explicit", () => {
-		expect(LINE_ART_MODEL).toBe("openai/gpt-image-1");
+		expect(LINE_ART_MODEL).toBe("google/gemini-2.5-flash-image");
 	});
 
 	it("trims and includes the user subject", () => {
@@ -26,7 +26,7 @@ describe("buildLineArtPrompt", () => {
 			expect(prompt).toContain("clean continuous black outlines");
 			expect(prompt).toContain("large enclosed areas suitable for coloring");
 			expect(prompt).toContain("No color, grayscale, shading, gradients");
-			expect(prompt).toContain("Generate one single image only");
+			expect(prompt).not.toContain("Generate one single image only");
 		}
 	});
 

@@ -7,8 +7,16 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@colorir/ui/components/card";
+import { Input } from "@colorir/ui/components/input";
+import { Label } from "@colorir/ui/components/label";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertCircle, ImageIcon, Loader2, Sparkles } from "lucide-react";
+import {
+	AlertCircle,
+	ChevronDown,
+	ImageIcon,
+	Loader2,
+	Sparkles,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -42,9 +50,10 @@ const STYLES = [
 type StyleId = (typeof STYLES)[number]["id"];
 
 type GenerationResult = {
-	imageUrl: string;
+	images: { id: string; url: string }[];
 	style: string;
 	prompt: string;
+	params?: Record<string, unknown>;
 };
 
 type GenerationError = {
@@ -70,6 +79,17 @@ function RouteComponent() {
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [error, setError] = useState<GenerationError | null>(null);
 	const [result, setResult] = useState<GenerationResult | null>(null);
+
+	const [seed, setSeed] = useState("");
+
+	const buildRequestBody = () => {
+		const body: Record<string, unknown> = {
+			style: selectedStyle,
+			prompt: prompt.trim(),
+		};
+		if (seed !== "") body.seed = Number(seed);
+		return body;
+	};
 
 	const handleGenerate = async () => {
 		if (!selectedStyle) {
@@ -101,7 +121,7 @@ function RouteComponent() {
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ style: selectedStyle, prompt: trimmedPrompt }),
+					body: JSON.stringify(buildRequestBody()),
 					signal: controller.signal,
 					credentials: "include",
 				},
@@ -137,9 +157,10 @@ function RouteComponent() {
 
 			const data = await response.json();
 			setResult({
-				imageUrl: data.url,
+				images: data.images,
 				style: selectedStyle,
 				prompt: trimmedPrompt,
+				params: data.params,
 			});
 			toast.success("Imagem gerada com sucesso!");
 		} catch (err: unknown) {
@@ -231,6 +252,33 @@ function RouteComponent() {
 				</p>
 			</section>
 
+			<section>
+				<details className="group">
+					<summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-sm">
+						<ChevronDown className="size-4 transition-transform group-open:rotate-180" />
+						3. Parâmetros Avançados
+					</summary>
+					<div className="mt-4 flex flex-col gap-4">
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="seed" className="flex items-center gap-1">
+								Seed (opcional)
+								<span className="text-[10px] text-muted-foreground">
+									— Para reprodução do resultado
+								</span>
+							</Label>
+							<Input
+								id="seed"
+								type="number"
+								placeholder="Deixe em branco para aleatório"
+								value={seed}
+								onChange={(e) => setSeed(e.target.value)}
+								className="w-40"
+							/>
+						</div>
+					</div>
+				</details>
+			</section>
+
 			{error && error.type === "validation" && (
 				<div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive text-xs">
 					<AlertCircle className="size-4 shrink-0" />
@@ -269,7 +317,7 @@ function RouteComponent() {
 				</Card>
 			)}
 
-			{result && (
+			{result && result.images.length > 0 && (
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
@@ -283,7 +331,7 @@ function RouteComponent() {
 					</CardHeader>
 					<CardContent>
 						<img
-							src={result.imageUrl}
+							src={result.images[0].url}
 							alt={`Line-art gerada no estilo ${result.style}`}
 							className="w-full rounded-lg border"
 						/>

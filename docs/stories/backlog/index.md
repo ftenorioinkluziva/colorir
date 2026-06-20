@@ -21,9 +21,11 @@ All stories in this backlog have been executed and are now marked as completed f
 | 8 | 2.4 Galeria de Imagens | 2 | 2 | 5 | High | Completed | [link](epic-2/2.4-galeria-de-imagens.md) |
 | 9 | 2.5 Seleção Múltipla e Ações em Lote | 2 | 2 | 5 | Medium | Completed | [link](epic-2/2.5-selecao-multipla-acoes-em-lote.md) |
 | 10 | 2.6 Otimização de Prompt e Capacidade do Modelo | 2 | 2 | 5 | High | Completed | [link](epic-2/2.6-otimizacao-prompt-capacidade-modelo.md) |
-| 11 | 3.1 Serviço de Geração de PDF (Hono + pdf-lib) | 3 | 3 | 8 | Critical | Completed | [link](epic-3/3.1-servico-geracao-pdf-hono-pdf-lib.md) |
-| 12 | 3.2 Preview do PDF | 3 | 3 | 5 | Medium | Completed | [link](epic-3/3.2-preview-do-pdf.md) |
-| 13 | 3.3 Download do PDF | 3 | 3 | 3 | Medium | Completed | [link](epic-3/3.3-download-do-pdf.md) |
+| 11 | 2.7 Parâmetros Avançados de Geração de Imagem | 2 | - | 8 | Medium | Completed | [link](epic-2/2.7-parametros-avancados-geracao-imagem.md) |
+| 12 | 2.8 Migrar Geração de Imagem para generateText (Gemini) | 2 | - | 5 | High | Draft | [link](epic-2/2.8-migrar-generate-image-para-generate-text.md) |
+| 13 | 3.1 Serviço de Geração de PDF (Hono + pdf-lib) | 3 | 3 | 8 | Critical | Completed | [link](epic-3/3.1-servico-geracao-pdf-hono-pdf-lib.md) |
+| 14 | 3.2 Preview do PDF | 3 | 3 | 5 | Medium | Completed | [link](epic-3/3.2-preview-do-pdf.md) |
+| 15 | 3.3 Download do PDF | 3 | 3 | 3 | Medium | Completed | [link](epic-3/3.3-download-do-pdf.md) |
 
 ---
 

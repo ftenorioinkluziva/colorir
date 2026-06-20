@@ -1,4 +1,4 @@
-export const LINE_ART_MODEL = "openai/gpt-image-1";
+export const LINE_ART_MODEL = "google/gemini-2.5-flash-image";
 
 export const LINE_ART_STYLES = [
 	"mandala",
@@ -56,7 +56,6 @@ export const LINE_ART_STYLE_CONFIGS: Record<LineArtStyle, StylePromptConfig> = {
 };
 
 const BASE_REQUIREMENTS = [
-	"Generate one single image only.",
 	"Output must be a black-and-white line-art coloring page.",
 	"Use pure white background and clean continuous black outlines.",
 	"Use large enclosed areas suitable for coloring.",

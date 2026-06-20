@@ -1,0 +1,59 @@
+schema: 1
+story: "2.7"
+story_title: "Parâmetros Avançados de Geração de Imagem"
+gate: PASS
+status_reason: "All 7 ACs met. 31/31 tests passing, biome lint clean, server + web typecheck pass. Unit tests cover schema validation comprehensively. Minor concerns: (1) integration tests for endpoint param combos require AI provider (not blocking), (2) response shape changed from {id,url} to {images:[{id,url}]} — consistent design, frontend adapted in tandem."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-06-19T16:33:00-03:00"
+
+top_issues:
+  - severity: medium
+    description: "Missing integration tests for endpoint with different param combinations"
+    suggested_owner: dev
+    refs: ["apps/server/src/routes/generate-image.ts"]
+  - severity: low
+    description: "seed=0 edge case: user typing '0' in seed field is excluded by falsy check"
+    suggested_owner: dev
+    refs: ["apps/web/src/routes/studio.tsx"]
+
+waiver:
+  active: false
+
+quality_score: 90
+expires: "2026-07-03T23:00:00-03:00"
+
+evidence:
+  tests_reviewed:
+    count: 31
+  risks_identified:
+    count: 2
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7]
+    ac_gaps: []
+  commands:
+    - "bun run --filter server test:run"
+    - "bun run --filter server check-types"
+    - "bun run --filter web check-types"
+    - "bunx biome check apps/server/src/validation/ai.ts apps/server/src/routes/generate-image.ts apps/server/src/validation/generate-image.ts apps/web/src/routes/studio.tsx"
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "No new auth, secret handling, or provider surface added. Endpoint still requires authenticated session and AI_GATEWAY_API_KEY."
+  performance:
+    status: PASS
+    notes: "Parameter propagation is optional — zero overhead when not used."
+  reliability:
+    status: PASS
+    notes: "Backward compatible at schema level. Multi-image upload errors handled per-image with null filtering. Parallel upload via Promise.all."
+  maintainability:
+    status: PASS
+    notes: "Schema validation centralized in ai.ts. Route propagates params via spread. Frontend controls isolated in collapsible section."
+
+recommendations:
+  immediate: []
+  future:
+    - action: "Add integration test for multi-image upload (n > 1) when AI provider can be mocked"
+      refs: ["apps/server/src/routes/generate-image.ts"]
+    - action: "Fix seed=0 edge case: use seed !== '' instead of if(seed)"
+      refs: ["apps/web/src/routes/studio.tsx"]
